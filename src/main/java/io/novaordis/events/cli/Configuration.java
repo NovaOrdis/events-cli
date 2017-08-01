@@ -46,7 +46,6 @@ public interface Configuration {
     /**
      * @return the input stream events will come from. It may be file-based or pipe-based, as it is the case when
      * the content is piped into the process. Unless isHelp() returns true, this method should never return null.
-     * The implementation should provide a BufferedStream, wherever possible.
      *
      * Important! It is the caller's responsibility to close the InputStream when it is not needed anymore.
      */

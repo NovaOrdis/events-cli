@@ -25,7 +25,6 @@ import io.novaordis.utilities.UserErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,8 +44,6 @@ public class ConfigurationImpl implements Configuration {
     // Constants -------------------------------------------------------------------------------------------------------
 
     private static final Logger log = LoggerFactory.getLogger(ConfigurationImpl.class);
-
-    public static final int DEFAULT_BUFFER_SIZE = 10240;
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -143,7 +140,7 @@ public class ConfigurationImpl implements Configuration {
 
             try {
 
-                this.inputStream = new BufferedInputStream(new FileInputStream(file), DEFAULT_BUFFER_SIZE);
+                this.inputStream = new FileInputStream(file);
             }
             catch(IOException e) {
 
@@ -158,7 +155,7 @@ public class ConfigurationImpl implements Configuration {
 
             log.debug("no input file specified, using System.in (" + STDIN + ")");
 
-            this.inputStream = new BufferedInputStream(STDIN, DEFAULT_BUFFER_SIZE);
+            this.inputStream = STDIN;
         }
 
         //
