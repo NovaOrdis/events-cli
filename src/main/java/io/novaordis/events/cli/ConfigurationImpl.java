@@ -110,31 +110,52 @@ public class ConfigurationImpl implements Configuration {
 
         args = args.subList(0, i + 1);
 
+        //
+        // scan the argument list and identify the procedure
+        //
+
         for(i = 0; i < args.size(); i ++) {
 
             String arg = args.get(i);
+            this.procedure = ProcedureFactory.find(arg, i + 1, args);
 
-            if (procedure == null) {
+            if (this.procedure != null) {
 
-                procedure = ProcedureFactory.find(arg, i + 1, args);
+                //
+                // we identified the procedure, which also consumed all its arguments from the list, remove the
+                // argument and exit
+                //
 
-                if (procedure != null) {
+                args.remove(i);
 
-                    continue;
-                }
+                break;
+            }
+        }
+
+        if (this.procedure == null) {
+
+            //
+            // no explicit procedure, default to Output
+            //
+
+            this.procedure = new Output(System.out, args);
+        }
+
+        //
+        // query
+        //
+
+        if (!args.isEmpty()) {
+
+            try {
+
+                this.query = Query.fromArguments(args, 0);
+            }
+            catch (Exception e) {
+
+                throw new UserErrorException(e);
             }
 
-            if (query == null) {
-
-                try {
-
-                    query = Query.fromArguments(args, i);
-                }
-                catch (Exception e) {
-
-                    throw new UserErrorException(e);
-                }
-            }
         }
 
         if (file != null) {
@@ -171,14 +192,6 @@ public class ConfigurationImpl implements Configuration {
             }
 
             ((Exclude) procedure).setQuery(query);
-        }
-        else if (procedure == null) {
-
-            //
-            // default is "output"
-            //
-
-            this.procedure = new Output(System.out);
         }
     }
 

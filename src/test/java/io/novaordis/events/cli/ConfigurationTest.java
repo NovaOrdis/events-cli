@@ -16,10 +16,13 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.events.api.event.GenericEvent;
+import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.count.Count;
 import io.novaordis.events.processing.describe.Describe;
 import io.novaordis.events.processing.exclude.Exclude;
+import io.novaordis.events.processing.output.DefaultOutputFormat;
 import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.processing.output.OutputFormat;
 import io.novaordis.events.query.FieldQuery;
@@ -33,9 +36,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -357,7 +362,7 @@ public abstract class ConfigurationTest {
         assertNotNull(count);
     }
 
-    // output format
+    // output/output format --------------------------------------------------------------------------------------------
 
     @Test
     public void constructor_OutputFormat() throws Exception {
@@ -375,13 +380,94 @@ public abstract class ConfigurationTest {
 
         Configuration c = getConfigurationToTest(args);
 
-        Output output = (Output)c.getProcedure();
+        Output output = (Output) c.getProcedure();
         assertNotNull(output);
+
+        assertEquals(System.out, output.getOutputStream());
 
         OutputFormat format = output.getFormat();
         assertNotNull(format);
 
-        fail("return here");
+        //
+        // the OutputFormat is NOT the default, there's an event property to be displayed
+        //
+
+        assertFalse(format instanceof DefaultOutputFormat);
+    }
+
+    @Test
+    public void constructor_ExplicitOutput_NoArguments() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        String[] args = {
+
+                "output",
+                f.getPath(),
+        };
+
+        Configuration c = getConfigurationToTest(args);
+
+        InputStream is = c.getInputStream();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int b;
+        while ((b = is.read()) != -1) {
+
+            baos.write(b);
+        }
+
+        assertEquals("SYNTHETIC", new String(baos.toByteArray()));
+
+        is.close();
+
+        Output output = (Output)c.getProcedure();
+        assertEquals(System.out, output.getOutputStream());
+
+        DefaultOutputFormat of = (DefaultOutputFormat)output.getFormat();
+        assertNotNull(of);
+    }
+
+    @Test
+    public void constructor_ExplicitOutput_Arguments() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        String[] args = {
+
+                "output",
+                "-o",
+                "something",
+                f.getPath(),
+        };
+
+        Configuration c = getConfigurationToTest(args);
+
+        InputStream is = c.getInputStream();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int b;
+        while ((b = is.read()) != -1) {
+
+            baos.write(b);
+        }
+
+        assertEquals("SYNTHETIC", new String(baos.toByteArray()));
+
+        is.close();
+
+        Output output = (Output)c.getProcedure();
+        assertEquals(System.out, output.getOutputStream());
+
+        OutputFormat of = output.getFormat();
+        assertNotNull(of);
+
+        String s = of.format(new GenericEvent(Collections.singletonList(new StringProperty("something", "else"))));
+        assertEquals("else", s);
     }
 
     // heuristics ------------------------------------------------------------------------------------------------------
