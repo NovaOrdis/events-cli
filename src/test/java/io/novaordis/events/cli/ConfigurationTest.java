@@ -21,6 +21,7 @@ import io.novaordis.events.processing.count.Count;
 import io.novaordis.events.processing.describe.Describe;
 import io.novaordis.events.processing.exclude.Exclude;
 import io.novaordis.events.processing.output.Output;
+import io.novaordis.events.processing.output.OutputFormat;
 import io.novaordis.events.query.FieldQuery;
 import io.novaordis.events.query.KeywordQuery;
 import io.novaordis.events.query.MixedQuery;
@@ -354,6 +355,33 @@ public abstract class ConfigurationTest {
 
         Count count = (Count)c.getProcedure();
         assertNotNull(count);
+    }
+
+    // output format
+
+    @Test
+    public void constructor_OutputFormat() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        String[] args = {
+
+                "-o",
+                "event-type",
+                f.getPath(),
+        };
+
+        Configuration c = getConfigurationToTest(args);
+
+        Output output = (Output)c.getProcedure();
+        assertNotNull(output);
+
+        OutputFormat format = output.getFormat();
+        assertNotNull(format);
+
+        //fail("return here");
     }
 
     // heuristics ------------------------------------------------------------------------------------------------------
