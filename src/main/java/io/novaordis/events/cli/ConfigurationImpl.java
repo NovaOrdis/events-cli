@@ -19,6 +19,7 @@ package io.novaordis.events.cli;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureFactory;
 import io.novaordis.events.processing.exclude.Exclude;
+import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.query.NullQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
@@ -170,6 +171,14 @@ public class ConfigurationImpl implements Configuration {
             }
 
             ((Exclude) procedure).setQuery(query);
+        }
+        else if (procedure == null) {
+
+            //
+            // default is "output"
+            //
+
+            this.procedure = new Output(System.out);
         }
     }
 

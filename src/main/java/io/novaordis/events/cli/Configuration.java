@@ -52,7 +52,8 @@ public interface Configuration {
     InputStream getInputStream();
 
     /**
-     * @return the procedure that was requested at command line. May return null, which has a "default procedure"
+     * @return the procedure that was requested at command line. If no procedure is explicitly requested, the behavior
+     * defaults to "display", which means a May return null, which has a "default procedure"
      * semantics. It usually means to display the incoming (and possibly filtered) events.
      */
     Procedure getProcedure();

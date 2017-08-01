@@ -20,6 +20,7 @@ import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.count.Count;
 import io.novaordis.events.processing.describe.Describe;
 import io.novaordis.events.processing.exclude.Exclude;
+import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.query.FieldQuery;
 import io.novaordis.events.query.KeywordQuery;
 import io.novaordis.events.query.MixedQuery;
@@ -94,7 +95,9 @@ public abstract class ConfigurationTest {
 
         is.close();
 
-        assertNull(c.getProcedure());
+        Output output = (Output)c.getProcedure();
+        assertNotNull(output);
+
         assertNull(c.getQuery());
     }
 
@@ -239,6 +242,9 @@ public abstract class ConfigurationTest {
 
         assertEquals("red", keywords.get(0).getKeyword());
         assertEquals("blue", keywords.get(1).getKeyword());
+
+        Output output = (Output)c.getProcedure();
+        assertNotNull(output);
     }
 
     @Test
@@ -286,7 +292,6 @@ public abstract class ConfigurationTest {
         assertEquals("blue", keywords.get(1).getKeyword());
     }
 
-
     @Test
     public void constructor_QueryAndFile() throws Exception {
 
@@ -315,11 +320,12 @@ public abstract class ConfigurationTest {
 
         is.close();
 
-        assertNull(c.getProcedure());
-
         FieldQuery fq = (FieldQuery)c.getQuery();
         assertEquals("log-level", fq.getFieldName());
         assertEquals("ERROR", fq.getValue());
+
+        Output output = (Output)c.getProcedure();
+        assertNotNull(output);
     }
 
     @Test
@@ -345,6 +351,9 @@ public abstract class ConfigurationTest {
         }
 
         assertEquals("STDIN SYNTHETIC", new String(baos.toByteArray()));
+
+        Count count = (Count)c.getProcedure();
+        assertNotNull(count);
     }
 
     // heuristics ------------------------------------------------------------------------------------------------------
