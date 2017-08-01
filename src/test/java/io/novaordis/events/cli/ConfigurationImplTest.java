@@ -16,6 +16,8 @@
 
 package io.novaordis.events.cli;
 
+import java.io.InputStream;
+
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
@@ -39,9 +41,21 @@ public class ConfigurationImplTest extends ConfigurationTest {
     // Protected -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected ConfigurationImpl getConfigurationToTest() throws Exception {
+    protected ConfigurationImpl getConfigurationToTest(String[] args, InputStream mockStdin) throws Exception {
 
-        return new ConfigurationImpl();
+        try {
+
+            if (mockStdin != null) {
+
+                ConfigurationImpl.STDIN = mockStdin;
+            }
+
+            return new ConfigurationImpl(args);
+        }
+        finally {
+
+            ConfigurationImpl.STDIN = System.in;
+        }
     }
 
     // Private ---------------------------------------------------------------------------------------------------------

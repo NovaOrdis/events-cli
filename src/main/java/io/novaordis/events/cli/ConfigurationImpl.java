@@ -16,6 +16,23 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.processing.ProcedureFactory;
+import io.novaordis.events.processing.exclude.Exclude;
+import io.novaordis.events.query.NullQuery;
+import io.novaordis.events.query.Query;
+import io.novaordis.utilities.UserErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Serves as a simple implementation and also as a base that can be extended.
  *
@@ -26,13 +43,161 @@ public class ConfigurationImpl implements Configuration {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationImpl.class);
+
     // Static ----------------------------------------------------------------------------------------------------------
+
+    //
+    // package exposed for testing
+    //
+    static InputStream STDIN = System.in;
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private boolean help;
+    private InputStream inputStream;
+    private Query query;
+    private Procedure procedure;
+
     // Constructors ----------------------------------------------------------------------------------------------------
 
+    /**
+     * @param argsa "log4jp [command] [command options] [query] <file1> [file2 ...]
+     */
+    public ConfigurationImpl(String[] argsa) throws UserErrorException {
+
+        if (argsa.length == 0) {
+
+            //
+            // no arguments, display help
+            //
+
+            this.help = true;
+        }
+
+        List<String> args = new ArrayList<>(Arrays.asList(argsa));
+
+        //
+        // start from the back and identify the files
+        //
+
+        File file = null;
+
+        int i;
+
+        for(i = args.size() - 1; i >= 0; i --) {
+
+            String arg = args.get(i);
+
+            File candidate = new File(arg);
+
+            if (candidate.isFile()) {
+
+                if (file != null) {
+
+                    throw new UserErrorException("multiple files cannot be processed at the same time");
+                }
+
+                file = candidate;
+            }
+
+            else {
+
+                break;
+            }
+        }
+
+        args = args.subList(0, i + 1);
+
+        for(i = 0; i < args.size(); i ++) {
+
+            String arg = args.get(i);
+
+            if (procedure == null) {
+
+                procedure = ProcedureFactory.find(arg, i + 1, args);
+
+                if (procedure != null) {
+
+                    continue;
+                }
+            }
+
+            if (query == null) {
+
+                try {
+
+                    query = Query.fromArguments(args, i);
+                }
+                catch (Exception e) {
+
+                    throw new UserErrorException(e);
+                }
+            }
+        }
+
+        if (file != null) {
+
+            try {
+
+                this.inputStream = new FileInputStream(file);
+            }
+            catch(IOException e) {
+
+                throw new UserErrorException(e);
+            }
+        }
+        else {
+
+            //
+            // use the stdin
+            //
+
+            log.debug("no input file specified, using System.in (" + STDIN + ")");
+
+            this.inputStream = STDIN;
+        }
+
+        //
+        // configuration heuristics
+        //
+
+        if (procedure instanceof Exclude) {
+
+            if (query == null) {
+
+                query = new NullQuery();
+            }
+
+            ((Exclude) procedure).setQuery(query);
+        }
+    }
+
     // Configuration implementation ------------------------------------------------------------------------------------
+
+    @Override
+    public boolean isHelp() {
+
+        return help;
+    }
+
+    @Override
+    public InputStream getInputStream() {
+
+        return inputStream;
+    }
+
+    @Override
+    public Procedure getProcedure() {
+
+        return procedure;
+    }
+
+    @Override
+    public Query getQuery() {
+
+        return query;
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
