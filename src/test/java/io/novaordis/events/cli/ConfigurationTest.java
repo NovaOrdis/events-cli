@@ -381,7 +381,7 @@ public abstract class ConfigurationTest {
         OutputFormat format = output.getFormat();
         assertNotNull(format);
 
-        //fail("return here");
+        fail("return here");
     }
 
     // heuristics ------------------------------------------------------------------------------------------------------
