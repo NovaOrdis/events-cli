@@ -193,6 +193,19 @@ public class ConfigurationImpl implements Configuration {
 
             ((Exclude) procedure).setQuery(query);
         }
+
+
+        if (log.isDebugEnabled()) {
+
+            String s =
+                    "configuration\n" +
+                    "  help:        " + help + "\n" +
+                    "  query:       " + query + "" +
+                    "  procedure:   " + procedure + "\n" +
+                    "  inputStream: " + inputStream + "\n";
+
+            log.debug(s);
+        }
     }
 
     // Configuration implementation ------------------------------------------------------------------------------------
