@@ -200,9 +200,9 @@ public class ConfigurationImpl implements Configuration {
             String s =
                     "configuration\n" +
                     "  help:        " + help + "\n" +
-                    "  query:       " + query + "" +
+                    "  query:       " + query + "\n" +
                     "  procedure:   " + procedure + "\n" +
-                    "  inputStream: " + inputStream + "\n";
+                    "  inputStream: " + inputStream;
 
             log.debug(s);
         }
