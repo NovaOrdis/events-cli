@@ -24,7 +24,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -321,7 +320,9 @@ public class EventParserRuntimeTest {
 
         MockProcedure mp = new MockProcedure("mock");
 
-        EventParserRuntime.processBatch(events, null, mp, new AtomicLong(0L), new AtomicLong(0L));
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null);
+
+        r.processBatch(events, null, mp);
 
         //
         // we just make sure that *all* events were transferred to the procedure

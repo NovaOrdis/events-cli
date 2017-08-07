@@ -79,6 +79,7 @@ public class ConfigurationImpl implements Configuration {
             //
 
             this.help = true;
+            return;
         }
 
         List<String> args = new ArrayList<>(Arrays.asList(argsa));

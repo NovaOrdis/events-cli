@@ -53,7 +53,7 @@ public class EventParserRuntime {
 
     private String applicationName;
 
-    private Configuration configuration;
+    private final Configuration configuration;
 
     private AtomicLong parsingFailureCount;
     private volatile boolean failedOnClose;
@@ -72,6 +72,7 @@ public class EventParserRuntime {
             throws UserErrorException {
 
         this.configuration = new ConfigurationImpl(commandLineArguments, localProcedureFactory);
+
         this.applicationName = applicationName;
         this.parsingFailureCount = new AtomicLong(0L);
         this.processingFailureCount = new AtomicLong(0L);
@@ -102,7 +103,7 @@ public class EventParserRuntime {
 
                 try {
 
-                    processBatch(parser.parse(line), query, procedure, processedEventsCount, processingFailureCount);
+                    processBatch(parser.parse(line), query, procedure);
 
                 }
                 catch(ParsingException e) {
@@ -120,7 +121,7 @@ public class EventParserRuntime {
 
             try {
 
-                processBatch(parser.close(), query, procedure, processedEventsCount, processingFailureCount);
+                processBatch(parser.close(), query, procedure);
 
             }
             catch(ParsingException e) {
@@ -199,9 +200,7 @@ public class EventParserRuntime {
         return processedEventsCount.get();
     }
 
-    // Static package protected ----------------------------------------------------------------------------------------
-
-    static void processBatch(List<Event> events, Query query, Procedure procedure, AtomicLong processedEventsCount, AtomicLong processingFailureCount) {
+    void processBatch(List<Event> events, Query query, Procedure procedure) {
 
         if (query != null) {
 
@@ -224,6 +223,8 @@ public class EventParserRuntime {
             log.debug("event processing failure", e);
         }
     }
+
+    // Static package protected ----------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
 
