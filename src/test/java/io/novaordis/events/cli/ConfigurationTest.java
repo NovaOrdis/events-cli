@@ -362,6 +362,61 @@ public abstract class ConfigurationTest {
         assertNotNull(count);
     }
 
+    @Test
+    public void constructor_ProcedureIsAvailableLocally_SameProcedureAvailableInProcessing() throws Exception {
+
+        String[] args = {
+
+                "describe"
+        };
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("describe");
+        mf.addProcedure(mp);
+
+        ConfigurationImpl c = new ConfigurationImpl(args, mf);
+
+        Procedure p = c.getProcedure();
+
+        assertEquals(mp, p);
+    }
+
+    @Test
+    public void constructor_ProcedureIsNotAvailableLocally_LocalProcedureFactoryIsSet() throws Exception {
+
+        String[] args = {
+
+                "describe"
+        };
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("some-procedure");
+        mf.addProcedure(mp);
+
+        ConfigurationImpl c = new ConfigurationImpl(args, mf);
+
+        Procedure p = c.getProcedure();
+
+        assertTrue(p instanceof Describe);
+        assertNotNull(p);
+    }
+
+    @Test
+    public void constructor_LocalProcedureFactoryIsNotSet() throws Exception {
+
+        String[] args = {
+
+                "describe"
+        };
+
+        ConfigurationImpl c = new ConfigurationImpl(args, null);
+
+        Procedure p = c.getProcedure();
+
+        assertTrue(p instanceof Describe);
+        assertNotNull(p);
+    }
+
     // output/output format --------------------------------------------------------------------------------------------
 
     @Test

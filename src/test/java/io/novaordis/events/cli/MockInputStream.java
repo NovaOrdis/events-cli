@@ -16,13 +16,14 @@
 
 package io.novaordis.events.cli;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/7/17
  */
-public class ConfigurationImplTest extends ConfigurationTest {
+public class MockInputStream extends InputStream {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -30,33 +31,37 @@ public class ConfigurationImplTest extends ConfigurationTest {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private boolean failWhileReadingFirstLine;
+
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    // InputStream overrides -------------------------------------------------------------------------------------------
+
+    @Override
+    public int read() throws IOException {
+
+        if (failWhileReadingFirstLine) {
+
+            //
+            // we fail immediately
+            //
+
+            throw new IOException("SYNTETIC FAILURE WHILE READING THE FIRST LINE");
+        }
+
+        throw new RuntimeException("read() NOT YET IMPLEMENTED");
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
-    // Tests -----------------------------------------------------------------------------------------------------------
+    public void setFailWhileReadingFirstLine(boolean b) {
+
+        this.failWhileReadingFirstLine = b;
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
-
-    @Override
-    protected ConfigurationImpl getConfigurationToTest(String[] args, InputStream mockStdin) throws Exception {
-
-        try {
-
-            if (mockStdin != null) {
-
-                ConfigurationImpl.STDIN = mockStdin;
-            }
-
-            return new ConfigurationImpl(args, null);
-        }
-        finally {
-
-            ConfigurationImpl.STDIN = System.in;
-        }
-    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 

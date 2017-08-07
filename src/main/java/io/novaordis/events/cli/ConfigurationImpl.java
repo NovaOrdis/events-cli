@@ -16,6 +16,8 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.events.api.parser.Parser;
+import io.novaordis.events.processing.DefaultProcedureFactory;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureFactory;
 import io.novaordis.events.processing.exclude.Exclude;
@@ -56,16 +58,18 @@ public class ConfigurationImpl implements Configuration {
     // Attributes ------------------------------------------------------------------------------------------------------
 
     private boolean help;
-    private InputStream inputStream;
     private Query query;
     private Procedure procedure;
+    private InputStream inputStream;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
     /**
      * @param argsa "log4jp [command] [command options] [query] <file1> [file2 ...]
+     * @param localProcedureFactory a procedure factory to be used to build procedures provided locally. May be null,
+     *                              but if it is not null, it takes precedence over the default procedure factory.
      */
-    public ConfigurationImpl(String[] argsa) throws UserErrorException {
+    public ConfigurationImpl(String[] argsa, ProcedureFactory localProcedureFactory) throws UserErrorException {
 
         if (argsa.length == 0) {
 
@@ -111,24 +115,62 @@ public class ConfigurationImpl implements Configuration {
         args = args.subList(0, i + 1);
 
         //
-        // scan the argument list and identify the procedure
+        // scan the argument list and identify the procedure; first try the local procedure factory, if it exists,
+        // then try the default procedure factory
         //
 
-        for(i = 0; i < args.size(); i ++) {
+        if (localProcedureFactory != null) {
 
-            String arg = args.get(i);
-            this.procedure = ProcedureFactory.find(arg, i + 1, args);
+            for (i = 0; i < args.size(); i++) {
 
-            if (this.procedure != null) {
+                String arg = args.get(i);
 
-                //
-                // we identified the procedure, which also consumed all its arguments from the list, remove the
-                // argument and exit
-                //
+                this.procedure = localProcedureFactory.find(arg, i + 1, args);
 
-                args.remove(i);
+                if (this.procedure != null) {
 
-                break;
+                    log.debug("found local procedure " + procedure);
+
+                    //
+                    // we identified the procedure, which also consumed all its arguments from the list, remove the
+                    // argument and exit
+                    //
+
+                    args.remove(i);
+
+                    break;
+                }
+            }
+        }
+
+        if (this.procedure == null) {
+
+            //
+            // try the default procedure factory, which will build procedures shipped as part of the "events-processing"
+            // project.
+            //
+
+            ProcedureFactory defaultProcedureFactory = new DefaultProcedureFactory();
+
+            for (i = 0; i < args.size(); i++) {
+
+                String arg = args.get(i);
+
+                this.procedure = defaultProcedureFactory.find(arg, i + 1, args);
+
+                if (this.procedure != null) {
+
+                    log.debug("found default procedure " + procedure);
+
+                    //
+                    // we identified the procedure, which also consumed all its arguments from the list, remove the
+                    // argument and exit
+                    //
+
+                    args.remove(i);
+
+                    break;
+                }
             }
         }
 
@@ -162,7 +204,8 @@ public class ConfigurationImpl implements Configuration {
 
             try {
 
-                this.inputStream = new FileInputStream(file);
+                InputStream is  = new FileInputStream(file);
+                setInputStream(is);
             }
             catch(IOException e) {
 
@@ -177,7 +220,7 @@ public class ConfigurationImpl implements Configuration {
 
             log.debug("no input file specified, using System.in (" + STDIN + ")");
 
-            this.inputStream = STDIN;
+            setInputStream(STDIN);
         }
 
         //
@@ -223,6 +266,11 @@ public class ConfigurationImpl implements Configuration {
     }
 
     @Override
+    public Parser getParser() {
+        throw new RuntimeException("getParser() NOT YET IMPLEMENTED");
+    }
+
+    @Override
     public Procedure getProcedure() {
 
         return procedure;
@@ -237,6 +285,11 @@ public class ConfigurationImpl implements Configuration {
     // Public ----------------------------------------------------------------------------------------------------------
 
     // Package protected -----------------------------------------------------------------------------------------------
+
+    void setInputStream(InputStream is) {
+
+        this.inputStream = is;
+    }
 
     // Protected -------------------------------------------------------------------------------------------------------
 

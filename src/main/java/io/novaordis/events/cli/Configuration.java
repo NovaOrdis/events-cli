@@ -16,6 +16,7 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.events.api.parser.Parser;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.query.Query;
 
@@ -50,6 +51,9 @@ public interface Configuration {
      * Important! It is the caller's responsibility to close the InputStream when it is not needed anymore.
      */
     InputStream getInputStream();
+
+
+    Parser getParser();
 
     /**
      * @return the procedure that was requested at command line. If no procedure is explicitly requested, the behavior

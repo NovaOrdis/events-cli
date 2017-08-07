@@ -16,13 +16,17 @@
 
 package io.novaordis.events.cli;
 
-import java.io.InputStream;
+import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.processing.ProcedureFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/7/17
  */
-public class ConfigurationImplTest extends ConfigurationTest {
+public class MockProcedureFactory implements ProcedureFactory {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -30,33 +34,41 @@ public class ConfigurationImplTest extends ConfigurationTest {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private List<Procedure> procedures;
+
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    public MockProcedureFactory() {
+
+        this.procedures = new ArrayList<>();
+    }
+
+    // ProcedureFactory implementation ---------------------------------------------------------------------------------
+
+    @Override
+    public Procedure find(String commandLineLabel, int from, List<String> arguments) {
+
+        for(Procedure p: procedures) {
+
+            if (p.getCommandLineLabels().contains(commandLineLabel)) {
+
+                return p;
+            }
+        }
+
+        return null;
+    }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
-    // Tests -----------------------------------------------------------------------------------------------------------
+    public void addProcedure(Procedure p) {
+
+        procedures.add(p);
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
-
-    @Override
-    protected ConfigurationImpl getConfigurationToTest(String[] args, InputStream mockStdin) throws Exception {
-
-        try {
-
-            if (mockStdin != null) {
-
-                ConfigurationImpl.STDIN = mockStdin;
-            }
-
-            return new ConfigurationImpl(args, null);
-        }
-        finally {
-
-            ConfigurationImpl.STDIN = System.in;
-        }
-    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 
