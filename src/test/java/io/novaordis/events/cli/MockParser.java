@@ -17,102 +17,90 @@
 package io.novaordis.events.cli;
 
 import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.StringProperty;
-import io.novaordis.events.processing.EventProcessingException;
-import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.api.parser.Parser;
+import io.novaordis.events.api.parser.ParsingException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * The procedure keep a record of all received events.
- *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 8/7/17
  */
-public class MockProcedure implements Procedure {
+public class MockParser implements Parser {
 
     // Constants -------------------------------------------------------------------------------------------------------
+
+    public static final String PAYLOAD_PROPERTY_NAME = "payload";
 
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
-    private String commandLineLabel;
+    private long lineNumber;
 
-    // maintains received events in order
-    private List<Event> receivedEvents;
-
-    private String genericEventPayloadContentToFailOn;
+    private boolean failWhenParsing;
+    private boolean failWhenClosing;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
-    public MockProcedure(String commandLineLabel) {
+    public MockParser() {
 
-        this.commandLineLabel = commandLineLabel;
-        this.receivedEvents = new ArrayList<>();
-        this.genericEventPayloadContentToFailOn = null;
+        this.lineNumber = 0;
+        this.failWhenParsing = false;
+        this.failWhenClosing = false;
     }
 
-    // Procedure implementation ----------------------------------------------------------------------------------------
+    // Parser implementation -------------------------------------------------------------------------------------------
 
     @Override
-    public List<String> getCommandLineLabels() {
+    public List<Event> parse(String line) throws ParsingException {
 
-        return Collections.singletonList(commandLineLabel);
-    }
+        lineNumber ++;
 
-    @Override
-    public void process(Event in) throws EventProcessingException {
+        if (failWhenParsing) {
 
-        receivedEvents.add(in);
-
-        StringProperty payload = in.getStringProperty(MockParser.PAYLOAD_PROPERTY_NAME);
-
-        if (payload == null) {
-
-            return;
+            throw new ParsingException("SYNTHETIC PARSING EXCEPTION");
         }
 
-        String sPayload = payload.getString();
+        //
+        // wrap each line in a generic event, with a "payload" property.
+        //
 
-        if (sPayload == null) {
-
-            return;
-        }
-
-        if (genericEventPayloadContentToFailOn != null && genericEventPayloadContentToFailOn.equals(sPayload)) {
-
-            throw new EventProcessingException("SYNTHETIC PROCESSING EXCEPTION");
-        }
+        //noinspection ArraysAsListWithZeroOrOneArgument
+        return Arrays.asList(new GenericEvent(Arrays.asList(new StringProperty(PAYLOAD_PROPERTY_NAME, line))));
     }
 
     @Override
-    public void process(List<Event> in) throws EventProcessingException {
+    public List<Event> close() throws ParsingException {
 
-        for(Event e: in) {
+        if (failWhenClosing) {
 
-            process(e);
+            throw new ParsingException("SYNTHETIC CLOSING EXCEPTION");
         }
+
+        return Collections.emptyList();
     }
 
     @Override
-    public long getInvocationCount() {
-        throw new RuntimeException("getInvocationCount() NOT YET IMPLEMENTED");
+    public long getLineNumber() {
+
+        return lineNumber;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
 
-    public List<Event> getReceivedEvents() {
+    public void setFailWhenParsing(boolean b) {
 
-        return receivedEvents;
+        this.failWhenParsing = b;
     }
 
-    public void failOnPayload(String genericEventPayloadContentToFailOn) {
+    public void setFailWhenClosing(boolean b) {
 
-        this.genericEventPayloadContentToFailOn = genericEventPayloadContentToFailOn;
+        this.failWhenClosing = b;
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

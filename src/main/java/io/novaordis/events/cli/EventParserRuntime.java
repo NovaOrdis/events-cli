@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A generic event parser runtime, that can be configured on command line with a procedure, a query, output options
@@ -50,7 +51,14 @@ public class EventParserRuntime {
 
     // Attributes ------------------------------------------------------------------------------------------------------
 
+    private String applicationName;
+
     private Configuration configuration;
+
+    private AtomicLong parsingFailureCount;
+    private volatile boolean failedOnClose;
+    private AtomicLong processingFailureCount;
+    private AtomicLong processedEventsCount;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -64,6 +72,12 @@ public class EventParserRuntime {
             throws UserErrorException {
 
         this.configuration = new ConfigurationImpl(commandLineArguments, localProcedureFactory);
+        this.applicationName = applicationName;
+        this.parsingFailureCount = new AtomicLong(0L);
+        this.processingFailureCount = new AtomicLong(0L);
+        this.processedEventsCount = new AtomicLong(0L);
+
+        log.debug(this + " constructed");
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
@@ -75,7 +89,7 @@ public class EventParserRuntime {
         InputStream is = configuration.getInputStream();
         Procedure procedure = configuration.getProcedure();
 
-        BufferedReader br = null;
+        BufferedReader br;
 
         try {
 
@@ -88,7 +102,7 @@ public class EventParserRuntime {
 
                 try {
 
-                    processBatch(parser.parse(line), query, procedure);
+                    processBatch(parser.parse(line), query, procedure, processedEventsCount, processingFailureCount);
 
                 }
                 catch(ParsingException e) {
@@ -96,12 +110,17 @@ public class EventParserRuntime {
                     //
                     // do not interrupt stream processing, log as error instead
                     //
+
+                    parsingFailureCount.incrementAndGet();
+
+                    log.error("" + e.getMessage());
+                    log.debug("parsing failure", e);
                 }
             }
 
             try {
 
-                processBatch(parser.close(), query, procedure);
+                processBatch(parser.close(), query, procedure, processedEventsCount, processingFailureCount);
 
             }
             catch(ParsingException e) {
@@ -109,6 +128,11 @@ public class EventParserRuntime {
                 //
                 // do not interrupt stream processing, log as error instead
                 //
+
+                failedOnClose = true;
+
+                log.error("" + e.getMessage());
+                log.debug("parser close() failure", e);
             }
         }
         catch (IOException e) {
@@ -147,18 +171,46 @@ public class EventParserRuntime {
         return configuration;
     }
 
+    @Override
+    public String toString() {
+
+        return "EventParserRuntime[" + applicationName + "]";
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
-    // Protected -------------------------------------------------------------------------------------------------------
+    long getParsingFailureCount() {
 
-    // Private ---------------------------------------------------------------------------------------------------------
+        return parsingFailureCount.get();
+    }
 
-    private void processBatch(List<Event> events, Query query, Procedure procedure) {
+    boolean isFailedOnClose() {
 
-        events = query.filter(events);
+        return failedOnClose;
+    }
+
+    long getProcessingFailureCount() {
+
+        return processingFailureCount.get();
+    }
+
+    long getProcessedEventsCount() {
+
+        return processedEventsCount.get();
+    }
+
+    // Static package protected ----------------------------------------------------------------------------------------
+
+    static void processBatch(List<Event> events, Query query, Procedure procedure, AtomicLong processedEventsCount, AtomicLong processingFailureCount) {
+
+        if (query != null) {
+
+            events = query.filter(events);
+        }
 
         try {
 
+            processedEventsCount.addAndGet(events.size());
             procedure.process(events);
         }
         catch(EventProcessingException e) {
@@ -166,8 +218,17 @@ public class EventParserRuntime {
             //
             // do not interrupt stream processing, log as error instead
             //
+
+            processingFailureCount.incrementAndGet();
+            log.error("" + e.getMessage());
+            log.debug("event processing failure", e);
         }
     }
+
+    // Protected -------------------------------------------------------------------------------------------------------
+
+    // Private ---------------------------------------------------------------------------------------------------------
+
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

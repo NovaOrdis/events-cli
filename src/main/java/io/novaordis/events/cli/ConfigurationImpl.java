@@ -59,6 +59,7 @@ public class ConfigurationImpl implements Configuration {
 
     private boolean help;
     private Query query;
+    private Parser parser;
     private Procedure procedure;
     private InputStream inputStream;
 
@@ -267,7 +268,8 @@ public class ConfigurationImpl implements Configuration {
 
     @Override
     public Parser getParser() {
-        throw new RuntimeException("getParser() NOT YET IMPLEMENTED");
+
+        return parser;
     }
 
     @Override
@@ -289,6 +291,11 @@ public class ConfigurationImpl implements Configuration {
     void setInputStream(InputStream is) {
 
         this.inputStream = is;
+    }
+
+    void setParser(Parser p) {
+
+        this.parser = p;
     }
 
     // Protected -------------------------------------------------------------------------------------------------------

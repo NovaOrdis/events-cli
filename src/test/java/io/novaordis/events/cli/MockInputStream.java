@@ -32,8 +32,30 @@ public class MockInputStream extends InputStream {
     // Attributes ------------------------------------------------------------------------------------------------------
 
     private boolean failWhileReadingFirstLine;
+    private boolean failWhileReadingSecondLine;
+    private int crt;
+    private byte[] content;
+
+    private int lineCount;
 
     // Constructors ----------------------------------------------------------------------------------------------------
+
+    public MockInputStream() {
+
+        this((byte[])null);
+    }
+
+    public MockInputStream(String content) {
+
+        this(content.getBytes());
+    }
+
+    public MockInputStream(byte[] content) {
+
+        this.crt = 0;
+        this.content = content;
+        this.lineCount = 0;
+    }
 
     // InputStream overrides -------------------------------------------------------------------------------------------
 
@@ -46,10 +68,27 @@ public class MockInputStream extends InputStream {
             // we fail immediately
             //
 
-            throw new IOException("SYNTETIC FAILURE WHILE READING THE FIRST LINE");
+            throw new IOException("SYNTHETIC FAILURE WHILE READING THE FIRST LINE");
         }
 
-        throw new RuntimeException("read() NOT YET IMPLEMENTED");
+        if (failWhileReadingSecondLine && lineCount == 1) {
+
+            throw new IOException("SYNTHETIC FAILURE WHILE READING THE SECOND LINE");
+        }
+
+        if (crt >= content.length) {
+
+            return -1;
+        }
+
+        int current = (int)content[crt ++];
+
+        if (current == '\n') {
+
+            lineCount ++;
+        }
+
+        return current;
     }
 
     // Public ----------------------------------------------------------------------------------------------------------
@@ -57,6 +96,11 @@ public class MockInputStream extends InputStream {
     public void setFailWhileReadingFirstLine(boolean b) {
 
         this.failWhileReadingFirstLine = b;
+    }
+
+    public void setFailWhileReadingSecondLine(boolean b) {
+
+        this.failWhileReadingSecondLine = b;
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

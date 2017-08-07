@@ -16,13 +16,20 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.utilities.UserErrorException;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -52,6 +59,8 @@ public class EventParserRuntimeTest {
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
@@ -67,6 +76,10 @@ public class EventParserRuntimeTest {
 
         mos.setFailWhileReadingFirstLine(true);
 
+        MockParser mpa = new MockParser();
+
+        c.setParser(mpa);
+
         try {
 
             r.run();
@@ -75,10 +88,14 @@ public class EventParserRuntimeTest {
         catch(UserErrorException e) {
 
             String msg = e.getMessage();
-            assertEquals("failed to process the input stream", msg);
+            assertTrue(msg.startsWith("failed to process the input stream"));
+            assertTrue(msg.contains("SYNTHETIC FAILURE WHILE READING THE FIRST LINE"));
             IOException e2 = (IOException)e.getCause();
             assertNotNull(e2);
         }
+
+        assertEquals(0, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
     }
 
     @Test
@@ -87,16 +104,17 @@ public class EventParserRuntimeTest {
         String args[] = new String[] {
 
                 "mock-procedure",
-                ""
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
-        MockInputStream mos = new MockInputStream();
+        MockInputStream mos = new MockInputStream("A\nB".getBytes());
 
         c.setInputStream(mos);
 
@@ -104,9 +122,28 @@ public class EventParserRuntimeTest {
         // the mock input stream will fail when the second line is read
         //
 
-        r.run();
+        mos.setFailWhileReadingSecondLine(true);
 
-        throw new RuntimeException("RETURN HERE");
+        MockParser mpa = new MockParser();
+
+        c.setParser(mpa);
+
+        try {
+
+            r.run();
+            fail("should have thrown exception");
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.startsWith("failed to process the input stream"));
+            assertTrue(msg.contains("SYNTHETIC FAILURE WHILE READING THE SECOND LINE"));
+            IOException e2 = (IOException)e.getCause();
+            assertNotNull(e2);
+        }
+
+        assertEquals(0, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
     }
 
     @Test
@@ -115,82 +152,125 @@ public class EventParserRuntimeTest {
         String args[] = new String[] {
 
                 "mock-procedure",
-                ""
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
-        MockInputStream mos = new MockInputStream();
+        MockInputStream mos = new MockInputStream("mock-event-1\nmock-event-2\nmock-event-3\n");
 
         c.setInputStream(mos);
 
+        MockParser mpar = new MockParser();
+
+        c.setParser(mpar);
+
         //
-        // the mock input stream will fail when the second line is read
+        // the event fails in parse(), which won't interrupt processing
         //
+
+        mpar.setFailWhenParsing(true);
+
+        assertEquals(0, r.getParsingFailureCount());
 
         r.run();
 
-        throw new RuntimeException("RETURN HERE");
+        assertEquals(3, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
+
     }
 
     @Test
-    public void loop_EventParsingFailsInClose() throws Exception {
+    public void loop_ParserCloseFails() throws Exception {
 
         String args[] = new String[] {
 
                 "mock-procedure",
-                ""
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
-        MockInputStream mos = new MockInputStream();
+        MockInputStream mos = new MockInputStream("mock-event-1\nmock-event-2\nmock-event-3\n");
 
         c.setInputStream(mos);
 
+        MockParser mpar = new MockParser();
+
+        c.setParser(mpar);
+
         //
-        // the mock input stream will fail when the second line is read
+        // the event fails in parse(), which won't interrupt processing
         //
+
+        mpar.setFailWhenClosing(true);
+
+        assertEquals(0, r.getParsingFailureCount());
 
         r.run();
 
-        throw new RuntimeException("RETURN HERE");
+        assertEquals(0, r.getParsingFailureCount());
+        assertTrue(r.isFailedOnClose());
     }
 
     @Test
-    public void loop_EventProcessingFails() throws Exception {
+    public void loop_EventProcessingFailsForSomeEvents() throws Exception {
 
         String args[] = new String[] {
 
                 "mock-procedure",
-                ""
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
-        MockInputStream mos = new MockInputStream();
+        MockInputStream mos = new MockInputStream("mock-event-1\nmock-event-2\nmock-event-3\n");
 
         c.setInputStream(mos);
 
         //
-        // the mock input stream will fail when the second line is read
+        // configure the procedure to fail when it gets payload "mock-event-2"
         //
+
+        mp.failOnPayload("mock-event-2");
+
+        MockParser mpar = new MockParser();
+
+        c.setParser(mpar);
 
         r.run();
 
-        throw new RuntimeException("RETURN HERE");
+        assertEquals(0, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
+
+        //
+        // all events should be received by the procedure
+        //
+
+        List<Event> receivedEvents = mp.getReceivedEvents();
+        assertEquals(3, receivedEvents.size());
+
+        //
+        // we should have one processing failure and two successes
+        //
+
+        assertEquals(1, r.getProcessingFailureCount());
+        assertEquals(3, r.getProcessedEventsCount());
     }
 
     @Test
@@ -199,14 +279,60 @@ public class EventParserRuntimeTest {
         String args[] = new String[] {
 
                 "mock-procedure",
-                ""
         };
 
         MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
 
         EventParserRuntime r = new EventParserRuntime(args, "test", mf);
 
+        ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
+
+        MockInputStream mos = new MockInputStream("mock-event-1\nmock-event-2\nmock-event-3\n");
+
+        c.setInputStream(mos);
+
+        MockParser mpar = new MockParser();
+
+        c.setParser(mpar);
+
         r.run();
+
+        assertEquals(0, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
+
+        //
+        // all events should be received by the procedure
+        //
+
+        List<Event> receivedEvents = mp.getReceivedEvents();
+        assertEquals(3, receivedEvents.size());
+        assertEquals(0, r.getProcessingFailureCount());
+        assertEquals(3, r.getProcessedEventsCount());
+    }
+
+    // processBatch() --------------------------------------------------------------------------------------------------
+
+    @Test
+    public void processBatch_NullQuery() throws Exception {
+
+        List<Event> events = Arrays.asList(new GenericEvent(), new GenericEvent(), new GenericEvent());
+
+        MockProcedure mp = new MockProcedure("mock");
+
+        EventParserRuntime.processBatch(events, null, mp, new AtomicLong(0L), new AtomicLong(0L));
+
+        //
+        // we just make sure that *all* events were transferred to the procedure
+        //
+
+        List<Event> receivedEvents = mp.getReceivedEvents();
+
+        assertEquals(events.size(), receivedEvents.size());
+        assertEquals(events.get(0), receivedEvents.get(0));
+        assertEquals(events.get(1), receivedEvents.get(1));
+        assertEquals(events.get(2), receivedEvents.get(2));
     }
 
     // Package protected -----------------------------------------------------------------------------------------------
