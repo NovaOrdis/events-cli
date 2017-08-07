@@ -83,7 +83,17 @@ public class EventParserRuntime {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    /**
+     * If the user requested help, either explicitly with "help", "--help" etc, run() is a noop and the calling
+     * layer should handle the request.
+     */
     public void run() throws UserErrorException {
+
+        if (configuration.isHelp()) {
+
+            log.debug("help request, will be handled by the upper layer");
+            return;
+        }
 
         Query query = configuration.getQuery();
         Parser parser = configuration.getParser();

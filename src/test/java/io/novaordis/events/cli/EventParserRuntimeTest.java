@@ -49,6 +49,24 @@ public class EventParserRuntimeTest {
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
+    // help() ----------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void help() throws Exception {
+
+        EventParserRuntime r = new EventParserRuntime(new String[0], "test", null);
+
+        //
+        // no arguments is interpreted as a help rendering request, run() should be a noop.
+        //
+
+        r.run();
+
+        assertTrue(r.getConfiguration().isHelp());
+    }
+
+    // loop() ----------------------------------------------------------------------------------------------------------
+
     @Test
     public void loop_InputStreamFailsWithIOExceptionOnReadingFirstLine() throws Exception {
 
