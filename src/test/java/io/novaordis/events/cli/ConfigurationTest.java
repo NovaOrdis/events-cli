@@ -374,7 +374,7 @@ public abstract class ConfigurationTest {
         MockProcedure mp = new MockProcedure("describe");
         mf.addProcedure(mp);
 
-        ConfigurationImpl c = new ConfigurationImpl(args, mf);
+        ConfigurationImpl c = new ConfigurationImpl(args, mf, null);
 
         Procedure p = c.getProcedure();
 
@@ -393,7 +393,7 @@ public abstract class ConfigurationTest {
         MockProcedure mp = new MockProcedure("some-procedure");
         mf.addProcedure(mp);
 
-        ConfigurationImpl c = new ConfigurationImpl(args, mf);
+        ConfigurationImpl c = new ConfigurationImpl(args, mf, null);
 
         Procedure p = c.getProcedure();
 
@@ -409,7 +409,7 @@ public abstract class ConfigurationTest {
                 "describe"
         };
 
-        ConfigurationImpl c = new ConfigurationImpl(args, null);
+        ConfigurationImpl c = new ConfigurationImpl(args, null, null);
 
         Procedure p = c.getProcedure();
 

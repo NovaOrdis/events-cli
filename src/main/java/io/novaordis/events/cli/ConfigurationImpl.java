@@ -70,7 +70,8 @@ public class ConfigurationImpl implements Configuration {
      * @param localProcedureFactory a procedure factory to be used to build procedures provided locally. May be null,
      *                              but if it is not null, it takes precedence over the default procedure factory.
      */
-    public ConfigurationImpl(String[] argsa, ProcedureFactory localProcedureFactory) throws UserErrorException {
+    public ConfigurationImpl(String[] argsa, ProcedureFactory localProcedureFactory, Parser parser)
+            throws UserErrorException {
 
         if (argsa.length == 0) {
 
@@ -81,6 +82,8 @@ public class ConfigurationImpl implements Configuration {
             this.help = true;
             return;
         }
+
+        setParser(parser);
 
         List<String> args = new ArrayList<>(Arrays.asList(argsa));
 

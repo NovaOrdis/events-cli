@@ -16,7 +16,12 @@
 
 package io.novaordis.events.cli;
 
+import org.junit.Test;
+
 import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -36,6 +41,41 @@ public class ConfigurationImplTest extends ConfigurationTest {
 
     // Tests -----------------------------------------------------------------------------------------------------------
 
+    @Test
+    public void parser() throws Exception {
+
+        ConfigurationImpl c = getConfigurationToTest(new String[0], null);
+
+        assertNull(c.getParser());
+
+        MockParser mp = new MockParser();
+        c.setParser(mp);
+
+        assertEquals(mp, c.getParser());
+    }
+
+    // constructor -----------------------------------------------------------------------------------------------------
+
+    @Test
+    public void constructor() throws Exception {
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mproc = new MockProcedure("mock-procedure");
+        mf.addProcedure(mproc);
+
+        MockParser mp = new MockParser();
+
+        String[] args = new String[] {"mock-procedure"};
+
+        ConfigurationImpl c = new ConfigurationImpl(args, mf, mp);
+
+        assertEquals(mp, c.getParser());
+
+        assertEquals(mproc, c.getProcedure());
+
+        assertNull(c.getQuery());
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
@@ -50,7 +90,7 @@ public class ConfigurationImplTest extends ConfigurationTest {
                 ConfigurationImpl.STDIN = mockStdin;
             }
 
-            return new ConfigurationImpl(args, null);
+            return new ConfigurationImpl(args, null, null);
         }
         finally {
 

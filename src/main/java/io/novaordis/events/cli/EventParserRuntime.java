@@ -68,10 +68,10 @@ public class EventParserRuntime {
      *                              factory. May be null.
      */
     public EventParserRuntime(
-            String[] commandLineArguments, String applicationName, ProcedureFactory localProcedureFactory)
-            throws UserErrorException {
+            String[] commandLineArguments, String applicationName,
+            ProcedureFactory localProcedureFactory, Parser parser) throws UserErrorException {
 
-        this.configuration = new ConfigurationImpl(commandLineArguments, localProcedureFactory);
+        this.configuration = new ConfigurationImpl(commandLineArguments, localProcedureFactory, parser);
 
         this.applicationName = applicationName;
         this.parsingFailureCount = new AtomicLong(0L);
