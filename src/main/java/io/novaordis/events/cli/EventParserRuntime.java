@@ -115,6 +115,11 @@ public class EventParserRuntime {
 
                     processBatch(parser.parse(line), query, procedure);
 
+                    if (procedure.isExitLoop()) {
+
+                        log.debug(procedure + " indicated it wants to exit the event loop");
+                        break;
+                    }
                 }
                 catch(ParsingException e) {
 

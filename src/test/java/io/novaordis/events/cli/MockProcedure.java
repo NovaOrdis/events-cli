@@ -22,7 +22,6 @@ import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.Procedure;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,6 +45,9 @@ public class MockProcedure implements Procedure {
     private List<Event> receivedEvents;
 
     private String genericEventPayloadContentToFailOn;
+    private String genericEventPayloadToExitLoop;
+
+    private boolean exitLoop;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -54,6 +56,7 @@ public class MockProcedure implements Procedure {
         this.commandLineLabel = commandLineLabel;
         this.receivedEvents = new ArrayList<>();
         this.genericEventPayloadContentToFailOn = null;
+        this.exitLoop = false;
     }
 
     // Procedure implementation ----------------------------------------------------------------------------------------
@@ -87,6 +90,11 @@ public class MockProcedure implements Procedure {
 
             throw new EventProcessingException("SYNTHETIC PROCESSING EXCEPTION");
         }
+
+        if (genericEventPayloadToExitLoop != null && genericEventPayloadToExitLoop.equals(sPayload)) {
+
+            exitLoop = true;
+        }
     }
 
     @Override
@@ -103,6 +111,12 @@ public class MockProcedure implements Procedure {
         throw new RuntimeException("getInvocationCount() NOT YET IMPLEMENTED");
     }
 
+    @Override
+    public boolean isExitLoop() {
+
+        return exitLoop;
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
 
     public List<Event> getReceivedEvents() {
@@ -113,6 +127,11 @@ public class MockProcedure implements Procedure {
     public void failOnPayload(String genericEventPayloadContentToFailOn) {
 
         this.genericEventPayloadContentToFailOn = genericEventPayloadContentToFailOn;
+    }
+
+    public void setExitLoopOnPayload(String genericEventPayloadToExitLoop) {
+
+        this.genericEventPayloadToExitLoop = genericEventPayloadToExitLoop;
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

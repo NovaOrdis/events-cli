@@ -329,6 +329,60 @@ public class EventParserRuntimeTest {
         assertEquals(3, r.getProcessedEventsCount());
     }
 
+    @Test
+    public void loop_ProcedureWantsToExitTheEventLoop() throws Exception {
+
+        String args[] = new String[] {
+
+                "mock-procedure",
+        };
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        MockProcedure mp = new MockProcedure("mock-procedure");
+        mf.addProcedure(mp);
+
+        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+
+        ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
+
+        MockInputStream mos = new MockInputStream("mock-event-1\nmock-event-2\nmock-event-3\n");
+
+        c.setInputStream(mos);
+
+        MockParser mpar = new MockParser();
+
+        c.setParser(mpar);
+
+        //
+        // configure the procedure to "want" to exit after processing "mock-event-2"
+        //
+
+        mp.setExitLoopOnPayload("mock-event-2");
+
+        r.run();
+
+        assertEquals(0, r.getParsingFailureCount());
+        assertFalse(r.isFailedOnClose());
+
+        //
+        // all events should be received by the procedure
+        //
+
+        List<Event> receivedEvents = mp.getReceivedEvents();
+
+        //
+        // because we cut the loop short, the last event is not presented to the procedure
+        //
+        assertEquals(2, receivedEvents.size());
+
+        assertEquals(0, r.getProcessingFailureCount());
+
+        //
+        // the procedure only processes the first two events
+        //
+        assertEquals(2, r.getProcessedEventsCount());
+    }
+
     // processBatch() --------------------------------------------------------------------------------------------------
 
     @Test
