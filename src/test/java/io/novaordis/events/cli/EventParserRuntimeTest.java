@@ -408,6 +408,16 @@ public class EventParserRuntimeTest {
         assertEquals(events.get(2), receivedEvents.get(2));
     }
 
+    // displayHelp() ---------------------------------------------------------------------------------------------------
+
+    @Test
+    public void displayHelp() throws Exception {
+
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
+
+        r.displayHelp("something");
+    }
+
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------

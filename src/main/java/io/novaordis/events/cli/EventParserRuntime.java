@@ -187,6 +187,11 @@ public class EventParserRuntime {
         return configuration;
     }
 
+    public void displayHelp(String applicationName) {
+
+        throw new RuntimeException("NOT YET IMPLEMENTED");
+    }
+
     @Override
     public String toString() {
 
