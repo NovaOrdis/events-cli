@@ -21,6 +21,7 @@ import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.utilities.UserErrorException;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -411,11 +412,44 @@ public class EventParserRuntimeTest {
     // displayHelp() ---------------------------------------------------------------------------------------------------
 
     @Test
-    public void displayHelp() throws Exception {
+    public void displayHelp_FileNotFound() throws Exception {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
 
-        r.displayHelp("something");
+        String original = r.getHelpFileName();
+
+        try {
+
+            r.setHelpFileName("no-such-file.txt");
+
+            r.displayHelp("something", baos);
+
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("no-such-file.txt"));
+        }
+        finally {
+
+            r.setHelpFileName(original);
+        }
+
+        assertEquals(0, baos.toByteArray().length);
+    }
+
+    @Test
+    public void displayHelp() throws Exception {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
+
+        r.displayHelp("something", baos);
+
+        assertEquals("synthetic help\n", new String(baos.toByteArray()));
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

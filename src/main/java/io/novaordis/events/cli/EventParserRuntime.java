@@ -24,6 +24,7 @@ import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureFactory;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.help.InLineHelp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -46,6 +48,8 @@ public class EventParserRuntime {
     // Constants -------------------------------------------------------------------------------------------------------
 
     private static final Logger log = LoggerFactory.getLogger(EventParserRuntime.class);
+
+    private static String HELP_FILE_NAME = "help.txt";
 
     // Static ----------------------------------------------------------------------------------------------------------
 
@@ -187,9 +191,32 @@ public class EventParserRuntime {
         return configuration;
     }
 
-    public void displayHelp(String applicationName) {
+    /**
+     * Displays the content found in the files whose names are mentioned in HELP_FILE_NAMES, if the files are
+     * present in the classpath, to the output stream provided as argument. Noop (except warning) if no file is found.
+     *
+     * @param applicationName the application name using this, to customize the help, if necessary.
+     *
+     * @exception UserErrorException on user-related error.
+     */
+    public void displayHelp(String applicationName, OutputStream os) throws UserErrorException {
 
-        throw new RuntimeException("NOT YET IMPLEMENTED");
+        String s = InLineHelp.get(applicationName, HELP_FILE_NAME);
+
+        if (s == null) {
+
+            return;
+        }
+
+        try {
+
+            os.write(s.getBytes());
+            os.flush();
+        }
+        catch(IOException e) {
+
+            log.warn("failed to write the output stream", e);
+        }
     }
 
     @Override
@@ -248,8 +275,17 @@ public class EventParserRuntime {
 
     // Protected -------------------------------------------------------------------------------------------------------
 
-    // Private ---------------------------------------------------------------------------------------------------------
+    void setHelpFileName(String s) {
 
+        HELP_FILE_NAME = s;
+    }
+
+    String getHelpFileName() {
+
+        return HELP_FILE_NAME;
+    }
+
+    // Private ---------------------------------------------------------------------------------------------------------
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

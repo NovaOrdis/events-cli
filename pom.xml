@@ -8,7 +8,7 @@
     <artifactId>events-cli</artifactId>
     <packaging>jar</packaging>
 
-    <version>1.0.2-SNAPSHOT-18</version>
+    <version>1.0.2-SNAPSHOT-19</version>
 
     <properties>
 
@@ -16,7 +16,8 @@
                Dependency Versions
         -->
 
-        <events.processing.version>1.1.1-SNAPSHOT-30</events.processing.version>
+        <novaordis.utilities.version>4.7.11-SNAPSHOT-2</novaordis.utilities.version>
+        <events.processing.version>1.1.1-SNAPSHOT-31</events.processing.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <junit.version>4.12</junit.version>
@@ -68,6 +69,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>io.novaordis.utilities</groupId>
+            <artifactId>novaordis-utilities</artifactId>
+            <version>${novaordis.utilities.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.novaordis.events.processing</groupId>
             <artifactId>events-processing</artifactId>
