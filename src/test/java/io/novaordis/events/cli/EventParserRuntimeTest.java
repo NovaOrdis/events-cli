@@ -55,7 +55,7 @@ public class EventParserRuntimeTest {
     @Test
     public void help() throws Exception {
 
-        EventParserRuntime r = new EventParserRuntime(new String[0], "test", null, null);
+        EventParserRuntime r = new EventParserRuntime(new String[0], "test", null);
 
         //
         // no arguments is interpreted as a help rendering request, run() should be a noop.
@@ -79,8 +79,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -127,8 +128,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test",asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -175,8 +177,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -214,8 +217,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -252,8 +256,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -302,8 +307,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -341,8 +347,9 @@ public class EventParserRuntimeTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("mock-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        EventParserRuntime r = new EventParserRuntime(args, "test", mf, null);
+        EventParserRuntime r = new EventParserRuntime(args, "test", asb);
 
         ConfigurationImpl c = (ConfigurationImpl)r.getConfiguration();
 
@@ -393,7 +400,7 @@ public class EventParserRuntimeTest {
 
         MockProcedure mp = new MockProcedure("mock");
 
-        EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null);
 
         r.processBatch(events, null, mp);
 
@@ -416,7 +423,7 @@ public class EventParserRuntimeTest {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null);
 
         String original = r.getHelpFileName();
 
@@ -445,7 +452,7 @@ public class EventParserRuntimeTest {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        EventParserRuntime r = new EventParserRuntime(new String[0], null, null, null);
+        EventParserRuntime r = new EventParserRuntime(new String[0], null, null);
 
         r.displayHelp("something", baos);
 

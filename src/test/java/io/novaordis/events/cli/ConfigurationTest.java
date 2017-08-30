@@ -373,8 +373,9 @@ public abstract class ConfigurationTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("describe");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        ConfigurationImpl c = new ConfigurationImpl(args, mf, null);
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
 
         Procedure p = c.getProcedure();
 
@@ -392,8 +393,9 @@ public abstract class ConfigurationTest {
         MockProcedureFactory mf = new MockProcedureFactory();
         MockProcedure mp = new MockProcedure("some-procedure");
         mf.addProcedure(mp);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
 
-        ConfigurationImpl c = new ConfigurationImpl(args, mf, null);
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
 
         Procedure p = c.getProcedure();
 
@@ -409,7 +411,7 @@ public abstract class ConfigurationTest {
                 "describe"
         };
 
-        ConfigurationImpl c = new ConfigurationImpl(args, null, null);
+        ConfigurationImpl c = new ConfigurationImpl(args, null);
 
         Procedure p = c.getProcedure();
 

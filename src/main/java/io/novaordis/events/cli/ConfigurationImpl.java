@@ -67,10 +67,12 @@ public class ConfigurationImpl implements Configuration {
 
     /**
      * @param argsa "log4jp [command] [command options] [query] <file1> [file2 ...]
-     * @param localProcedureFactory a procedure factory to be used to build procedures provided locally. May be null,
-     *                              but if it is not null, it takes precedence over the default procedure factory.
+     * @param applicationSpecificBehavior everything application-specific, which application built and it may be
+     *                                    needed to plug-in into the generic runtime. In general, application-specific
+     *                                    behavior, if present, takes precedence over corresponding, but more generic
+     *                                    behavior present in the generic runtime.
      */
-    public ConfigurationImpl(String[] argsa, ProcedureFactory localProcedureFactory, Parser parser)
+    public ConfigurationImpl(String[] argsa, ApplicationSpecificBehavior applicationSpecificBehavior)
             throws UserErrorException {
 
         if (argsa.length == 0) {
@@ -83,7 +85,7 @@ public class ConfigurationImpl implements Configuration {
             return;
         }
 
-        setParser(parser);
+        setParser(applicationSpecificBehavior);
 
         List<String> args = new ArrayList<>(Arrays.asList(argsa));
 
@@ -124,13 +126,26 @@ public class ConfigurationImpl implements Configuration {
         // then try the default procedure factory
         //
 
-        if (localProcedureFactory != null) {
+        ProcedureFactory applicationSpecificProcedureFactory = null;
+
+        if (applicationSpecificBehavior != null) {
+
+            applicationSpecificProcedureFactory = applicationSpecificBehavior.lookup(ProcedureFactory.class);
+
+            if (applicationSpecificProcedureFactory != null) {
+
+                log.debug("found application specific procedure factory: " + applicationSpecificProcedureFactory);
+            }
+        }
+
+
+        if (applicationSpecificProcedureFactory != null) {
 
             for (i = 0; i < args.size(); i++) {
 
                 String arg = args.get(i);
 
-                this.procedure = localProcedureFactory.find(arg, i + 1, args);
+                this.procedure = applicationSpecificProcedureFactory.find(arg, i + 1, args);
 
                 if (this.procedure != null) {
 
@@ -305,6 +320,24 @@ public class ConfigurationImpl implements Configuration {
     // Protected -------------------------------------------------------------------------------------------------------
 
     // Private ---------------------------------------------------------------------------------------------------------
+
+    private void setParser(ApplicationSpecificBehavior asb) {
+
+        if (asb == null) {
+
+            return;
+        }
+
+        Parser p = asb.lookup(Parser.class);
+
+        log.debug("identified application specific parser: " + p);
+
+        if (p != null) {
+
+            setParser(p);
+        }
+    }
+
 
     // Inner classes ---------------------------------------------------------------------------------------------------
 

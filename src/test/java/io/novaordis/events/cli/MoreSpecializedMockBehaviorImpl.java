@@ -16,18 +16,11 @@
 
 package io.novaordis.events.cli;
 
-import org.junit.Test;
-
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
- * @since 7/31/17
+ * @since 8/30/17
  */
-public class ConfigurationImplTest extends ConfigurationTest {
+public class MoreSpecializedMockBehaviorImpl implements MoreSpecializedMockBehavior {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
@@ -39,64 +32,9 @@ public class ConfigurationImplTest extends ConfigurationTest {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
-    // Tests -----------------------------------------------------------------------------------------------------------
-
-    @Test
-    public void parser() throws Exception {
-
-        ConfigurationImpl c = getConfigurationToTest(new String[0], null);
-
-        assertNull(c.getParser());
-
-        MockParser mp = new MockParser();
-        c.setParser(mp);
-
-        assertEquals(mp, c.getParser());
-    }
-
-    // constructor -----------------------------------------------------------------------------------------------------
-
-    @Test
-    public void constructor() throws Exception {
-
-        MockProcedureFactory mf = new MockProcedureFactory();
-        MockProcedure mproc = new MockProcedure("mock-procedure");
-        mf.addProcedure(mproc);
-        MockParser mp = new MockParser();
-        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf, mp);
-
-        String[] args = new String[] {"mock-procedure"};
-
-        ConfigurationImpl c = new ConfigurationImpl(args, asb);
-
-        assertEquals(mp, c.getParser());
-
-        assertEquals(mproc, c.getProcedure());
-
-        assertNull(c.getQuery());
-    }
-
     // Package protected -----------------------------------------------------------------------------------------------
 
     // Protected -------------------------------------------------------------------------------------------------------
-
-    @Override
-    protected ConfigurationImpl getConfigurationToTest(String[] args, InputStream mockStdin) throws Exception {
-
-        try {
-
-            if (mockStdin != null) {
-
-                ConfigurationImpl.STDIN = mockStdin;
-            }
-
-            return new ConfigurationImpl(args, null);
-        }
-        finally {
-
-            ConfigurationImpl.STDIN = System.in;
-        }
-    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 

@@ -21,7 +21,6 @@ import io.novaordis.events.api.parser.Parser;
 import io.novaordis.events.api.parser.ParsingException;
 import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.Procedure;
-import io.novaordis.events.processing.ProcedureFactory;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.help.InLineHelp;
@@ -68,14 +67,17 @@ public class EventParserRuntime {
 
     /**
      * @param applicationName the application name to be used in help content. May be null.
-     * @param localProcedureFactory the local procedure factory, to be used with priority over the default procedure
-     *                              factory. May be null.
+     * @param applicationSpecificBehavior everything application-specific, which application built and it may be
+     *                                    needed to plug-in into the generic runtime. In general, application-specific
+     *                                    behavior, if present, takes precedence over corresponding, but more generic
+     *                                    behavior present in the generic runtime.
+
      */
     public EventParserRuntime(
             String[] commandLineArguments, String applicationName,
-            ProcedureFactory localProcedureFactory, Parser parser) throws UserErrorException {
+            ApplicationSpecificBehavior applicationSpecificBehavior) throws UserErrorException {
 
-        this.configuration = new ConfigurationImpl(commandLineArguments, localProcedureFactory, parser);
+        this.configuration = new ConfigurationImpl(commandLineArguments, applicationSpecificBehavior);
 
         this.applicationName = applicationName;
         this.parsingFailureCount = new AtomicLong(0L);
