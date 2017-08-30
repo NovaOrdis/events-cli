@@ -201,7 +201,7 @@ public class ConfigurationImpl implements Configuration {
             // no explicit procedure, default to Output
             //
 
-            this.procedure = new Output(System.out, 0, args, applicationSpecificBehavior);
+            this.procedure = new Output(System.out, applicationSpecificBehavior, 0, args);
         }
 
         //
