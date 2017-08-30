@@ -19,6 +19,7 @@ package io.novaordis.events.cli;
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

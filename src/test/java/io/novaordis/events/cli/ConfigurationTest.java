@@ -30,6 +30,7 @@ import io.novaordis.events.query.KeywordQuery;
 import io.novaordis.events.query.MixedQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

@@ -16,6 +16,7 @@
 
 package io.novaordis.events.cli;
 
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import org.junit.Test;
 
 import java.io.InputStream;

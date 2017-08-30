@@ -23,6 +23,7 @@ import io.novaordis.events.processing.EventProcessingException;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import io.novaordis.utilities.help.InLineHelp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

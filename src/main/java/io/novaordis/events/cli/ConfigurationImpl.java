@@ -25,6 +25,7 @@ import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.query.NullQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
