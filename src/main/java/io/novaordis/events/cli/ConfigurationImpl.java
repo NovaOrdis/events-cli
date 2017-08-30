@@ -171,7 +171,7 @@ public class ConfigurationImpl implements Configuration {
             // project.
             //
 
-            ProcedureFactory defaultProcedureFactory = new DefaultProcedureFactory();
+            ProcedureFactory defaultProcedureFactory = new DefaultProcedureFactory(applicationSpecificBehavior);
 
             for (i = 0; i < args.size(); i++) {
 
@@ -201,7 +201,7 @@ public class ConfigurationImpl implements Configuration {
             // no explicit procedure, default to Output
             //
 
-            this.procedure = new Output(System.out, args);
+            this.procedure = new Output(System.out, 0, args, applicationSpecificBehavior);
         }
 
         //
