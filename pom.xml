@@ -8,7 +8,7 @@
     <artifactId>events-cli</artifactId>
     <packaging>jar</packaging>
 
-    <version>1.0.2-SNAPSHOT-26</version>
+    <version>1.0.2-SNAPSHOT-27</version>
 
     <properties>
 
@@ -17,7 +17,7 @@
         -->
 
         <novaordis.utilities.version>4.7.11-SNAPSHOT-5</novaordis.utilities.version>
-        <events.processing.version>1.1.1-SNAPSHOT-40</events.processing.version>
+        <events.processing.version>1.1.1-SNAPSHOT-41</events.processing.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <junit.version>4.12</junit.version>
@@ -32,8 +32,6 @@
     </properties>
 
     <build>
-
-        <finalName>playground-project-template</finalName>
 
         <!-- needed by the version mechanism -->
         <resources>

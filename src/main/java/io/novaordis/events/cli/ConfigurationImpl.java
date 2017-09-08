@@ -76,6 +76,8 @@ public class ConfigurationImpl implements Configuration {
     public ConfigurationImpl(String[] argsa, ApplicationSpecificBehavior applicationSpecificBehavior)
             throws UserErrorException {
 
+        log.debug("parsing argument: " + Arrays.asList(argsa));
+
         if (argsa.length == 0) {
 
             //
@@ -194,6 +196,8 @@ public class ConfigurationImpl implements Configuration {
                 }
             }
         }
+
+        log.debug("procedure factories were not able to identify any procedure (application-specific or default), building default procedure ...");
 
         if (this.procedure == null) {
 
