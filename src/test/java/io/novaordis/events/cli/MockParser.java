@@ -20,7 +20,7 @@ import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.parser.Parser;
-import io.novaordis.events.api.parser.ParsingException;
+import io.novaordis.utilities.ParsingException;
 
 import java.util.Arrays;
 import java.util.Collections;
