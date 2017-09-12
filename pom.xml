@@ -8,7 +8,7 @@
     <artifactId>events-cli</artifactId>
     <packaging>jar</packaging>
 
-    <version>1.0.2-SNAPSHOT-28</version>
+    <version>1.0.2-SNAPSHOT-29</version>
 
     <properties>
 
@@ -16,8 +16,8 @@
                Dependency Versions
         -->
 
-        <novaordis.utilities.version>4.7.11-SNAPSHOT-6</novaordis.utilities.version>
-        <events.processing.version>1.1.1-SNAPSHOT-42</events.processing.version>
+        <novaordis.utilities.version>4.7.11-SNAPSHOT-8</novaordis.utilities.version>
+        <events.processing.version>1.1.1-SNAPSHOT-43</events.processing.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <junit.version>4.12</junit.version>
