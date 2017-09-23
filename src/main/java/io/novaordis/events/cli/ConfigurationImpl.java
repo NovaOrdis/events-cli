@@ -155,8 +155,34 @@ public class ConfigurationImpl implements Configuration {
                     log.debug("found local procedure " + procedure);
 
                     //
-                    // we identified the procedure, which also consumed all its arguments from the list, remove the
-                    // argument and exit
+                    // we identified the procedure, which also consumed all its arguments from the list
+                    //
+
+                    //
+                    // if there are unrecognized arguments left at the end of the list, fail fast
+                    //
+
+                    if (i < args.size() - 1) {
+
+                        String msg = "unrecognized '" + arg + "' argument";
+
+                        msg += (args.size() - i > 2 ? "s: " : ": ");
+
+                        for(int j = i + 1; j < args.size(); j ++) {
+
+                            msg += "'" + args.get(j) + "'";
+
+                            if (j < args.size() - 1) {
+
+                                msg += ", ";
+                            }
+                        }
+
+                        throw new UserErrorException(msg);
+                    }
+
+                    //
+                    // otherwise, remove the argument and exit
                     //
 
                     args.remove(i);

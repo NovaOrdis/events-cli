@@ -405,6 +405,150 @@ public abstract class ConfigurationTest {
     }
 
     @Test
+    public void constructor_ProcedureLeavesUnrecognizedArgumentsOnCommandLine_NoQueryArguments() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        mf.registerType("mock-procedure", MockProcedureThatConsumesOnlyTheFirstArgument.class);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
+
+        String[] args = {
+
+                "mock-procedure",
+                "thisArgWillBeConsumed",
+                "something",
+                f.getPath()
+        };
+
+        try {
+
+            new ConfigurationImpl(args, asb);
+
+            fail("should have thrown exception");
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("unrecognized 'mock-procedure' argument:"));
+            assertTrue(msg.contains("'something'"));
+        }
+    }
+
+    @Test
+    public void constructor_ProcedureConsumesOneArgument_NoQueryArguments() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        mf.registerType("mock-procedure", MockProcedureThatConsumesOnlyTheFirstArgument.class);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
+
+        String[] args = {
+
+                "mock-procedure",
+                "thisArgWillBeConsumed",
+                f.getPath()
+        };
+
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
+
+        Procedure p = c.getProcedure();
+        assertTrue(p instanceof MockProcedureThatConsumesOnlyTheFirstArgument);
+        MockProcedureThatConsumesOnlyTheFirstArgument mp = (MockProcedureThatConsumesOnlyTheFirstArgument)p;
+        assertEquals("thisArgWillBeConsumed", mp.getConsumedArgument());
+
+        assertNull(c.getQuery());
+    }
+
+    @Test
+    public void constructor_ProcedureLeavesUnrecognizedArgumentsOnCommandLine_QueryArgumentsPresent() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        mf.registerType("mock-procedure", MockProcedureThatConsumesOnlyTheFirstArgument.class);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
+
+        String[] args = {
+
+                "all",
+                "these",
+                "are",
+                "query",
+                "arguments",
+                "mock-procedure",
+                "thisArgWillBeConsumed",
+                "red",
+                "blue",
+                f.getPath()
+        };
+
+        try {
+
+            new ConfigurationImpl(args, asb);
+
+            fail("should have thrown exception");
+        }
+        catch(UserErrorException e) {
+
+            String msg = e.getMessage();
+            assertTrue(msg.contains("unrecognized 'mock-procedure' arguments:"));
+            assertTrue(msg.contains("'red'"));
+            assertTrue(msg.contains("'blue'"));
+        }
+    }
+
+    @Test
+    public void constructor_ProcedureConsumesOneArgument_QueryArgumentsExist() throws Exception {
+
+        File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
+
+        assertTrue(f.isFile());
+
+        MockProcedureFactory mf = new MockProcedureFactory();
+        mf.registerType("mock-procedure", MockProcedureThatConsumesOnlyTheFirstArgument.class);
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mf);
+
+        String[] args = {
+
+                "all",
+                "these",
+                "are",
+                "query",
+                "arguments",
+                "mock-procedure",
+                "thisArgWillBeConsumed",
+                f.getPath()
+        };
+
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
+
+        Procedure p = c.getProcedure();
+        assertTrue(p instanceof MockProcedureThatConsumesOnlyTheFirstArgument);
+        MockProcedureThatConsumesOnlyTheFirstArgument mp = (MockProcedureThatConsumesOnlyTheFirstArgument)p;
+        assertEquals("thisArgWillBeConsumed", mp.getConsumedArgument());
+
+        MixedQuery q = (MixedQuery)c.getQuery();
+        assertNotNull(q);
+
+        List<KeywordQuery> kcs = q.getKeywordQueries();
+        assertEquals(5, kcs.size());
+
+        assertEquals("all", kcs.get(0).getKeyword());
+        assertEquals("these", kcs.get(1).getKeyword());
+        assertEquals("are", kcs.get(2).getKeyword());
+        assertEquals("query", kcs.get(3).getKeyword());
+        assertEquals("arguments", kcs.get(4).getKeyword());
+    }
+
+    @Test
     public void constructor_LocalProcedureFactoryIsNotSet() throws Exception {
 
         String[] args = {
