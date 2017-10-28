@@ -39,7 +39,9 @@ import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 
 /**
- * Serves as a simple implementation and also as a base that can be extended.
+ * Serves as the default Configuration implementation. Even if the class is not declared final, it should be no need
+ * to extend it, as it allows for delegation-based ApplicationSpecificConfiguration mechanism. If that mechanism is
+ * not flexible enough for the application needs, this class can presumably be extended.
  *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 7/31/17
