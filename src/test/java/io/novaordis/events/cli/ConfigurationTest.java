@@ -16,6 +16,15 @@
 
 package io.novaordis.events.cli;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
+
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.processing.Procedure;
@@ -31,14 +40,6 @@ import io.novaordis.events.query.MixedQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
-import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -64,6 +65,8 @@ public abstract class ConfigurationTest {
     // Public ----------------------------------------------------------------------------------------------------------
 
     // Tests -----------------------------------------------------------------------------------------------------------
+
+    // file and query handling -----------------------------------------------------------------------------------------
 
     @Test
     public void constructor_NoArguments() throws Exception {
@@ -106,6 +109,7 @@ public abstract class ConfigurationTest {
         assertNotNull(output);
 
         assertNull(c.getQuery());
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -171,6 +175,8 @@ public abstract class ConfigurationTest {
         FieldQuery fq = (FieldQuery)c.getQuery();
         assertEquals("log-level", fq.getFieldName());
         assertEquals("ERROR", fq.getValue());
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -208,6 +214,8 @@ public abstract class ConfigurationTest {
         FieldQuery fq = (FieldQuery)c.getQuery();
         assertEquals("log-level", fq.getFieldName());
         assertEquals("ERROR", fq.getValue());
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -252,6 +260,8 @@ public abstract class ConfigurationTest {
 
         Output output = (Output)c.getProcedure();
         assertNotNull(output);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -297,6 +307,8 @@ public abstract class ConfigurationTest {
 
         assertEquals("red", keywords.get(0).getKeyword());
         assertEquals("blue", keywords.get(1).getKeyword());
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -333,6 +345,8 @@ public abstract class ConfigurationTest {
 
         Output output = (Output)c.getProcedure();
         assertNotNull(output);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -361,7 +375,11 @@ public abstract class ConfigurationTest {
 
         Count count = (Count)c.getProcedure();
         assertNotNull(count);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
+
+    // procedure specification handling --------------------------------------------------------------------------------
 
     @Test
     public void constructor_ProcedureIsAvailableLocally_SameProcedureAvailableInProcessing() throws Exception {
@@ -381,6 +399,8 @@ public abstract class ConfigurationTest {
         Procedure p = c.getProcedure();
 
         assertEquals(mp, p);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -402,6 +422,8 @@ public abstract class ConfigurationTest {
 
         assertTrue(p instanceof Describe);
         assertNotNull(p);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -463,6 +485,7 @@ public abstract class ConfigurationTest {
         assertEquals("thisArgWillBeConsumed", mp.getConsumedArgument());
 
         assertNull(c.getQuery());
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -546,6 +569,8 @@ public abstract class ConfigurationTest {
         assertEquals("are", kcs.get(2).getKeyword());
         assertEquals("query", kcs.get(3).getKeyword());
         assertEquals("arguments", kcs.get(4).getKeyword());
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -562,6 +587,8 @@ public abstract class ConfigurationTest {
 
         assertTrue(p instanceof Describe);
         assertNotNull(p);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     // output/output format --------------------------------------------------------------------------------------------
@@ -595,6 +622,8 @@ public abstract class ConfigurationTest {
         //
 
         assertFalse(format instanceof DefaultOutputFormat);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -630,6 +659,8 @@ public abstract class ConfigurationTest {
 
         DefaultOutputFormat of = (DefaultOutputFormat)output.getFormat();
         assertNotNull(of);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
     @Test
@@ -670,12 +701,12 @@ public abstract class ConfigurationTest {
 
         String s = of.format(new GenericEvent(Collections.singletonList(new StringProperty("something", "else"))));
         assertEquals("else", s);
+
+        assertNull(c.getApplicationSpecificConfiguration());
     }
 
-    // heuristics ------------------------------------------------------------------------------------------------------
-
     @Test
-    public void heuristics_AnExcludeProcedureIsInitializedWithTheQuery() throws Exception {
+    public void constructor_heuristics_AnExcludeProcedureIsInitializedWithTheQuery() throws Exception {
 
         File f = new File(System.getProperty("basedir"), "src/test/resources/data/generic-file.txt");
 
@@ -698,6 +729,158 @@ public abstract class ConfigurationTest {
 
         FieldQuery q = (FieldQuery)exclude.getQuery();
         assertEquals("log-level", q.getFieldName());
+
+        assertNull(c.getApplicationSpecificConfiguration());
+    }
+
+    // application-specific top-level argument handling ----------------------------------------------------------------
+
+    @Test
+    public void constructor_topLevelArgumentProcessorPresent_RecognizedArgumentInFront() throws Exception {
+
+        String[] args = {
+
+                "A",
+                "B",
+                "C",
+                "D"
+
+        };
+
+        MockTopLevelArgumentProcessor mp = new MockTopLevelArgumentProcessor(Collections.singletonList("A"));
+
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mp);
+
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
+
+        MockApplicationSpecificConfiguration mc =
+                (MockApplicationSpecificConfiguration)c.getApplicationSpecificConfiguration();
+
+        assertNotNull(mc);
+
+        List<String> ra = mc.getRecognizedArguments();
+
+        assertEquals(1, ra.size());
+        assertEquals("A", ra.get(0));
+
+        //
+        // the rest of the arguments are interpreted as query keywords
+        //
+
+        Query q = c.getQuery();
+
+        assertTrue(q instanceof MixedQuery);
+        MixedQuery mq = (MixedQuery)q;
+
+        List<KeywordQuery> kqs = mq.getKeywordQueries();
+        assertEquals(3, kqs.size());
+        assertEquals("B", kqs.get(0).getKeyword());
+        assertEquals("C", kqs.get(1).getKeyword());
+        assertEquals("D", kqs.get(2).getKeyword());
+    }
+
+    @Test
+    public void constructor_topLevelArgumentProcessorPresent_RecognizedArgumentInTheMiddle() throws Exception {
+
+        String[] args = {
+
+                "A",
+                "B",
+                "C",
+                "D"
+
+        };
+
+        MockTopLevelArgumentProcessor mp = new MockTopLevelArgumentProcessor(Collections.singletonList("C"));
+
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mp);
+
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
+
+        MockApplicationSpecificConfiguration mc =
+                (MockApplicationSpecificConfiguration)c.getApplicationSpecificConfiguration();
+
+        assertNotNull(mc);
+
+        List<String> ra = mc.getRecognizedArguments();
+
+        assertEquals(1, ra.size());
+        assertEquals("C", ra.get(0));
+
+        //
+        // the rest of the arguments are interpreted as query keywords
+        //
+
+        Query q = c.getQuery();
+
+        assertTrue(q instanceof MixedQuery);
+        MixedQuery mq = (MixedQuery)q;
+
+        List<KeywordQuery> kqs = mq.getKeywordQueries();
+        assertEquals(3, kqs.size());
+        assertEquals("A", kqs.get(0).getKeyword());
+        assertEquals("B", kqs.get(1).getKeyword());
+        assertEquals("D", kqs.get(2).getKeyword());
+    }
+
+    @Test
+    public void constructor_topLevelArgumentProcessorPresent_RecognizedArgumentAtTheEnd() throws Exception {
+
+        String[] args = {
+
+                "A",
+                "B",
+                "C",
+                "D"
+
+        };
+
+        MockTopLevelArgumentProcessor mp = new MockTopLevelArgumentProcessor(Collections.singletonList("D"));
+
+        ApplicationSpecificBehavior asb = new ApplicationSpecificBehavior(mp);
+
+        ConfigurationImpl c = new ConfigurationImpl(args, asb);
+
+        MockApplicationSpecificConfiguration mc =
+                (MockApplicationSpecificConfiguration)c.getApplicationSpecificConfiguration();
+
+        assertNotNull(mc);
+
+        List<String> ra = mc.getRecognizedArguments();
+
+        assertEquals(1, ra.size());
+        assertEquals("D", ra.get(0));
+
+        //
+        // the rest of the arguments are interpreted as query keywords
+        //
+
+        Query q = c.getQuery();
+
+        assertTrue(q instanceof MixedQuery);
+        MixedQuery mq = (MixedQuery)q;
+
+        List<KeywordQuery> kqs = mq.getKeywordQueries();
+        assertEquals(3, kqs.size());
+        assertEquals("A", kqs.get(0).getKeyword());
+        assertEquals("B", kqs.get(1).getKeyword());
+        assertEquals("C", kqs.get(2).getKeyword());
+    }
+
+    // setApplicationSpecificConfiguration() ---------------------------------------------------------------------------
+
+    @Test
+    public void setApplicationSpecificConfiguration() throws Exception {
+
+        Configuration c = getConfigurationToTest(new String[0], null);
+
+        assertNull(c.getApplicationSpecificConfiguration());
+
+        MockApplicationSpecificConfiguration mc = new MockApplicationSpecificConfiguration();
+
+        c.setApplicationSpecificConfiguration(mc);
+
+        assertEquals(mc, c.getApplicationSpecificConfiguration());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

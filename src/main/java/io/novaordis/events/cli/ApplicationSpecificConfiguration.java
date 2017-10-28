@@ -16,37 +16,16 @@
 
 package io.novaordis.events.cli;
 
-import java.util.List;
-
-import io.novaordis.utilities.UserErrorException;
-
 /**
- * Identifies the implementor as a top-level command-line argument processor that will be given priority in inspecting
- * and processing command-line arguments. Needed to allow application to extract application-specific (but not
- * procedure specific) arguments.
- *
- * See https://kb.novaordis.com/index.php/Events-cli#Parser-specific_Top-level_Argument_Processing
- *
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
  * @since 10/28/17
  */
-public interface TopLevelArgumentProcessor {
+public interface ApplicationSpecificConfiguration {
 
     // Constants -------------------------------------------------------------------------------------------------------
 
     // Static ----------------------------------------------------------------------------------------------------------
 
     // Public ----------------------------------------------------------------------------------------------------------
-
-    /**
-     * @param mutableArgumentList a mutable list containing command line argument. Arguments recognized by the
-     *                            implementation of this interface <b>will be removed</b> from the list.
-     *
-     * @param c is necessary to install an ApplicationSpecificConfiguration, if the processor identifies
-     *          application-specific arguments.
-     *
-     * @throws UserErrorException
-     */
-    void process(List<String> mutableArgumentList, Configuration c) throws UserErrorException;
 
 }

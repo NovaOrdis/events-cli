@@ -64,6 +64,7 @@ public class ConfigurationImpl implements Configuration {
     private Parser parser;
     private Procedure procedure;
     private InputStream inputStream;
+    private ApplicationSpecificConfiguration applicationSpecificConfiguration;
 
     // Constructors ----------------------------------------------------------------------------------------------------
 
@@ -130,7 +131,7 @@ public class ConfigurationImpl implements Configuration {
         // priority, to identify, parse and remove application-specific top-level arguments
         //
 
-        TopLevelArgumentProcessor argumentProcessor = null;
+        TopLevelArgumentProcessor argumentProcessor;
 
         if (applicationSpecificBehavior != null) {
 
@@ -144,7 +145,7 @@ public class ConfigurationImpl implements Configuration {
                 // process the arguments and remove the recognized ones
                 //
 
-                argumentProcessor.process(args);
+                argumentProcessor.process(args, this);
             }
         }
 
@@ -357,7 +358,20 @@ public class ConfigurationImpl implements Configuration {
         return query;
     }
 
+    @Override
+    public ApplicationSpecificConfiguration getApplicationSpecificConfiguration() {
+
+        return applicationSpecificConfiguration;
+    }
+
+    @Override
+    public void setApplicationSpecificConfiguration(ApplicationSpecificConfiguration c) {
+
+        this.applicationSpecificConfiguration = c;
+    }
+
     // Public ----------------------------------------------------------------------------------------------------------
+
 
     // Package protected -----------------------------------------------------------------------------------------------
 

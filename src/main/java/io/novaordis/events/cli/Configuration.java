@@ -16,11 +16,11 @@
 
 package io.novaordis.events.cli;
 
+import java.io.InputStream;
+
 import io.novaordis.events.api.parser.Parser;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.query.Query;
-
-import java.io.InputStream;
 
 /**
  * The command line configuration.
@@ -67,5 +67,19 @@ public interface Configuration {
      * be allowed to "pass".
      */
     Query getQuery();
+
+    /**
+     * If a TopLevelArgumentProcessor was installed, and identifies application-specific command-line arguments, it
+     * will parse them and deposit into a ApplicationSpecificConfiguration instance, which will be created as needed.
+     * The method will return null otherwise.
+     */
+    ApplicationSpecificConfiguration getApplicationSpecificConfiguration();
+
+    /**
+     * Method exposed to allow a TopLevelArgumentProcessor to install an application-specific configuration, if it
+     * happens to recognize application-specific top-level argument, and application configuration is produced based on
+     * them.
+     */
+    void setApplicationSpecificConfiguration(ApplicationSpecificConfiguration c);
 
 }
