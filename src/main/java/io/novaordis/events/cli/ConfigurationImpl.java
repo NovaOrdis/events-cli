@@ -16,6 +16,17 @@
 
 package io.novaordis.events.cli;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.novaordis.events.api.parser.Parser;
 import io.novaordis.events.processing.DefaultProcedureFactory;
 import io.novaordis.events.processing.Procedure;
@@ -26,16 +37,6 @@ import io.novaordis.events.query.NullQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Serves as a simple implementation and also as a base that can be extended.
@@ -125,6 +126,29 @@ public class ConfigurationImpl implements Configuration {
         args = args.subList(0, i + 1);
 
         //
+        // If there is an application-specific top-level argument processor installed, give it the chance, with
+        // priority, to identify, parse and remove application-specific top-level arguments
+        //
+
+        TopLevelArgumentProcessor argumentProcessor = null;
+
+        if (applicationSpecificBehavior != null) {
+
+            argumentProcessor = applicationSpecificBehavior.lookup(TopLevelArgumentProcessor.class);
+
+            if (argumentProcessor != null) {
+
+                log.debug("found application specific top-level argument processor: " + argumentProcessor);
+
+                //
+                // process the arguments and remove the recognized ones
+                //
+
+                argumentProcessor.process(args);
+            }
+        }
+
+        //
         // scan the argument list and identify the procedure; first try the local procedure factory, if it exists,
         // then try the default procedure factory
         //
@@ -140,7 +164,6 @@ public class ConfigurationImpl implements Configuration {
                 log.debug("found application specific procedure factory: " + applicationSpecificProcedureFactory);
             }
         }
-
 
         if (applicationSpecificProcedureFactory != null) {
 
