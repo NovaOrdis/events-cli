@@ -374,17 +374,19 @@ public class ConfigurationImpl implements Configuration {
 
     // Public ----------------------------------------------------------------------------------------------------------
 
+    /**
+     * This method is public because ConfigurationImpl instances are used for testing outside the package.
+     */
+    public void setParser(Parser p) {
+
+        this.parser = p;
+    }
 
     // Package protected -----------------------------------------------------------------------------------------------
 
     void setInputStream(InputStream is) {
 
         this.inputStream = is;
-    }
-
-    void setParser(Parser p) {
-
-        this.parser = p;
     }
 
     // Protected -------------------------------------------------------------------------------------------------------
