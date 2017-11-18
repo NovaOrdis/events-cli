@@ -84,7 +84,7 @@ public class ConfigurationImplTest extends ConfigurationTest {
     // help ------------------------------------------------------------------------------------------------------------
 
     @Test
-    public void help_ConfigurationWithHelpProcedure() throws Exception {
+    public void help_ConfigurationWithHelpProcedure_Help() throws Exception {
 
         ConfigurationImpl c = new ConfigurationImpl(new String[] { "test" }, null);
 
