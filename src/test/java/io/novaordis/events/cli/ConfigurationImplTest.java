@@ -20,10 +20,13 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
+import io.novaordis.events.processing.help.Help;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -76,6 +79,20 @@ public class ConfigurationImplTest extends ConfigurationTest {
         assertEquals(mproc, c.getProcedure());
 
         assertNull(c.getQuery());
+    }
+
+    // help ------------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void help_ConfigurationWithHelpProcedure() throws Exception {
+
+        ConfigurationImpl c = new ConfigurationImpl(new String[] { "test" }, null);
+
+        assertFalse(c.isHelp());
+
+        c.setProcedure(new Help());
+
+        assertTrue(c.isHelp());
     }
 
     // Package protected -----------------------------------------------------------------------------------------------

@@ -32,6 +32,7 @@ import io.novaordis.events.processing.DefaultProcedureFactory;
 import io.novaordis.events.processing.Procedure;
 import io.novaordis.events.processing.ProcedureFactory;
 import io.novaordis.events.processing.exclude.Exclude;
+import io.novaordis.events.processing.help.Help;
 import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.query.NullQuery;
 import io.novaordis.events.query.Query;
@@ -333,7 +334,7 @@ public class ConfigurationImpl implements Configuration {
     @Override
     public boolean isHelp() {
 
-        return help;
+        return help || procedure instanceof Help;
     }
 
     @Override
@@ -390,6 +391,11 @@ public class ConfigurationImpl implements Configuration {
     }
 
     // Protected -------------------------------------------------------------------------------------------------------
+
+    void setProcedure(Procedure procedure) {
+
+        this.procedure = procedure;
+    }
 
     // Private ---------------------------------------------------------------------------------------------------------
 
