@@ -16,15 +16,16 @@
 
 package io.novaordis.events.cli;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.api.parser.Parser;
+import io.novaordis.events.query.Query;
 import io.novaordis.utilities.parsing.ParsingException;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Ovidiu Feodorov <ovidiu@novaordis.com>
@@ -57,7 +58,7 @@ public class MockParser implements Parser {
     // Parser implementation -------------------------------------------------------------------------------------------
 
     @Override
-    public List<Event> parse(String line) throws ParsingException {
+    public List<Event> parse(String line, Query query) throws ParsingException {
 
         lineNumber ++;
 

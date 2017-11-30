@@ -16,18 +16,6 @@
 
 package io.novaordis.events.cli;
 
-import io.novaordis.events.api.event.Event;
-import io.novaordis.events.api.parser.Parser;
-import io.novaordis.utilities.parsing.ParsingException;
-import io.novaordis.events.processing.EventProcessingException;
-import io.novaordis.events.processing.Procedure;
-import io.novaordis.events.query.Query;
-import io.novaordis.utilities.UserErrorException;
-import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
-import io.novaordis.utilities.help.InLineHelp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +23,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.novaordis.events.api.event.Event;
+import io.novaordis.events.api.parser.Parser;
+import io.novaordis.events.processing.EventProcessingException;
+import io.novaordis.events.processing.Procedure;
+import io.novaordis.events.query.Query;
+import io.novaordis.utilities.UserErrorException;
+import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
+import io.novaordis.utilities.help.InLineHelp;
+import io.novaordis.utilities.parsing.ParsingException;
 
 /**
  * A generic event parser runtime, that can be configured on command line with a procedure, a query, output options
@@ -113,14 +114,14 @@ public class EventParserRuntime {
 
             br = new BufferedReader(new InputStreamReader(is));
 
-
             String line;
 
             while((line = br.readLine()) != null) {
 
                 try {
 
-                    processBatch(parser.parse(line), query, procedure);
+                    List<Event> batch = parser.parse(line, query);
+                    processBatch(batch, query, procedure);
 
                     if (procedure.isExitLoop()) {
 
