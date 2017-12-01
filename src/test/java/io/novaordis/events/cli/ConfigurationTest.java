@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import io.novaordis.events.api.event.Event;
 import io.novaordis.events.api.event.GenericEvent;
 import io.novaordis.events.api.event.StringProperty;
 import io.novaordis.events.processing.Procedure;
@@ -35,8 +36,6 @@ import io.novaordis.events.processing.output.DefaultOutputFormat;
 import io.novaordis.events.processing.output.Output;
 import io.novaordis.events.processing.output.OutputFormat;
 import io.novaordis.events.query.FieldQuery;
-import io.novaordis.events.query.KeywordQuery;
-import io.novaordis.events.query.MixedQuery;
 import io.novaordis.events.query.Query;
 import io.novaordis.utilities.UserErrorException;
 import io.novaordis.utilities.appspec.ApplicationSpecificBehavior;
@@ -249,14 +248,13 @@ public abstract class ConfigurationTest {
 
         Query q = c.getQuery();
 
-        MixedQuery mq = (MixedQuery)q;
+        Event blue = new GenericEvent(new StringProperty("color", "blue"));
+        Event red = new GenericEvent(new StringProperty("color", "red"));
+        Event green = new GenericEvent(new StringProperty("color", "green"));
 
-        List<KeywordQuery> keywords = mq.getKeywordQueries();
-
-        assertEquals(2, keywords.size());
-
-        assertEquals("red", keywords.get(0).getKeyword());
-        assertEquals("blue", keywords.get(1).getKeyword());
+        assertTrue(q.selects(blue));
+        assertTrue(q.selects(red));
+        assertFalse(q.selects(green));
 
         Output output = (Output)c.getProcedure();
         assertNotNull(output);
@@ -299,14 +297,13 @@ public abstract class ConfigurationTest {
 
         Query q = c.getQuery();
 
-        MixedQuery mq = (MixedQuery)q;
+        Event blue = new GenericEvent(new StringProperty("color", "blue"));
+        Event red = new GenericEvent(new StringProperty("color", "red"));
+        Event green = new GenericEvent(new StringProperty("color", "green"));
 
-        List<KeywordQuery> keywords = mq.getKeywordQueries();
-
-        assertEquals(2, keywords.size());
-
-        assertEquals("red", keywords.get(0).getKeyword());
-        assertEquals("blue", keywords.get(1).getKeyword());
+        assertTrue(q.selects(blue));
+        assertTrue(q.selects(red));
+        assertFalse(q.selects(green));
 
         assertNull(c.getApplicationSpecificConfiguration());
     }
@@ -558,17 +555,22 @@ public abstract class ConfigurationTest {
         MockProcedureThatConsumesOnlyTheFirstArgument mp = (MockProcedureThatConsumesOnlyTheFirstArgument)p;
         assertEquals("thisArgWillBeConsumed", mp.getConsumedArgument());
 
-        MixedQuery q = (MixedQuery)c.getQuery();
+        Query q = c.getQuery();
         assertNotNull(q);
 
-        List<KeywordQuery> kcs = q.getKeywordQueries();
-        assertEquals(5, kcs.size());
+        Event e = new GenericEvent(new StringProperty("test", "all"));
+        Event e2 = new GenericEvent(new StringProperty("test", "these"));
+        Event e3 = new GenericEvent(new StringProperty("test", "are"));
+        Event e4 = new GenericEvent(new StringProperty("test", "query"));
+        Event e5 = new GenericEvent(new StringProperty("test", "arguments"));
+        Event e6 = new GenericEvent(new StringProperty("test", "something"));
 
-        assertEquals("all", kcs.get(0).getKeyword());
-        assertEquals("these", kcs.get(1).getKeyword());
-        assertEquals("are", kcs.get(2).getKeyword());
-        assertEquals("query", kcs.get(3).getKeyword());
-        assertEquals("arguments", kcs.get(4).getKeyword());
+        assertTrue(q.selects(e));
+        assertTrue(q.selects(e2));
+        assertTrue(q.selects(e3));
+        assertTrue(q.selects(e4));
+        assertTrue(q.selects(e5));
+        assertFalse(q.selects(e6));
 
         assertNull(c.getApplicationSpecificConfiguration());
     }
@@ -700,7 +702,7 @@ public abstract class ConfigurationTest {
         assertNotNull(of);
 
         String s = of.format(new GenericEvent(Collections.singletonList(new StringProperty("something", "else"))));
-        assertEquals("else", s);
+        assertEquals("else\n", s);
 
         assertNull(c.getApplicationSpecificConfiguration());
     }
@@ -769,14 +771,17 @@ public abstract class ConfigurationTest {
 
         Query q = c.getQuery();
 
-        assertTrue(q instanceof MixedQuery);
-        MixedQuery mq = (MixedQuery)q;
+        Event e = new GenericEvent(new StringProperty("test", "B"));
+        Event e2 = new GenericEvent(new StringProperty("test", "C"));
+        Event e3 = new GenericEvent(new StringProperty("test", "D"));
 
-        List<KeywordQuery> kqs = mq.getKeywordQueries();
-        assertEquals(3, kqs.size());
-        assertEquals("B", kqs.get(0).getKeyword());
-        assertEquals("C", kqs.get(1).getKeyword());
-        assertEquals("D", kqs.get(2).getKeyword());
+        assertTrue(q.selects(e));
+        assertTrue(q.selects(e2));
+        assertTrue(q.selects(e3));
+
+        Event e4 = new GenericEvent(new StringProperty("test", "A"));
+
+        assertFalse(q.selects(e4));
     }
 
     @Test
@@ -813,14 +818,17 @@ public abstract class ConfigurationTest {
 
         Query q = c.getQuery();
 
-        assertTrue(q instanceof MixedQuery);
-        MixedQuery mq = (MixedQuery)q;
+        Event e = new GenericEvent(new StringProperty("test", "A"));
+        Event e2 = new GenericEvent(new StringProperty("test", "B"));
+        Event e3 = new GenericEvent(new StringProperty("test", "D"));
 
-        List<KeywordQuery> kqs = mq.getKeywordQueries();
-        assertEquals(3, kqs.size());
-        assertEquals("A", kqs.get(0).getKeyword());
-        assertEquals("B", kqs.get(1).getKeyword());
-        assertEquals("D", kqs.get(2).getKeyword());
+        assertTrue(q.selects(e));
+        assertTrue(q.selects(e2));
+        assertTrue(q.selects(e3));
+
+        Event e4 = new GenericEvent(new StringProperty("test", "C"));
+
+        assertFalse(q.selects(e4));
     }
 
     @Test
@@ -857,14 +865,17 @@ public abstract class ConfigurationTest {
 
         Query q = c.getQuery();
 
-        assertTrue(q instanceof MixedQuery);
-        MixedQuery mq = (MixedQuery)q;
+        Event e = new GenericEvent(new StringProperty("test", "A"));
+        Event e2 = new GenericEvent(new StringProperty("test", "B"));
+        Event e3 = new GenericEvent(new StringProperty("test", "C"));
 
-        List<KeywordQuery> kqs = mq.getKeywordQueries();
-        assertEquals(3, kqs.size());
-        assertEquals("A", kqs.get(0).getKeyword());
-        assertEquals("B", kqs.get(1).getKeyword());
-        assertEquals("C", kqs.get(2).getKeyword());
+        assertTrue(q.selects(e));
+        assertTrue(q.selects(e2));
+        assertTrue(q.selects(e3));
+
+        Event e4 = new GenericEvent(new StringProperty("test", "D"));
+
+        assertFalse(q.selects(e4));
     }
 
     // setApplicationSpecificConfiguration() ---------------------------------------------------------------------------
